@@ -1,0 +1,23 @@
+{
+    "locale": "de-de",
+    "name": {
+        "first": "Jensen",
+        "last": "Huang"
+    },
+    "address": {
+        "street": "Einsteinstr. 172",
+        "city": "München",
+        "zip": "81677",
+        "country": "DE"
+    },
+    "email": "jensen@nvidia.com",
+    "phone": "408-486-2000",
+    "credit": {
+        "card": "4111111111111111",
+        "expiration": {
+            "month": "3",
+            "year": "2030"
+        },
+        "code": 737
+    }
+}
