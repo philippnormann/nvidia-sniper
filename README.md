@@ -79,6 +79,14 @@ pipenv run python -m sniper
 ## Configuration
 In the `customer.json` file, some fields require specific values.
 
+### `notification`
+The bot can send multiple apprise notifications, including a screenshot attachment upon successful checkout. See https://github.com/caronc/apprise#supported-notifications for more information. Add additional entries to the `notification` dictionary in the `customer.json` file for multiple providers. 
+
+A couple of example URLs for different notification services: 
+- `pover://user@token`: Pushover
+- `tgram://bottoken/ChatID`: Telegram
+- `discord://webhook_id/webhook_token`: Discord
+
 ### `locale`
 The `locale` field can have the following values:
 - `de-at`: Austria
@@ -200,6 +208,3 @@ For `en-us` locale, the `state` field can have the following values:
 - `WI`: Wisconsin
 - `WY`: Wyoming
 - `YT`: Yukon
-
-### `notification`
-Multiple apprise notifications can be send on successful checkout. See https://github.com/caronc/apprise#supported-notifications for more information. Add another entry to the notification dict for multiple providers, any name can be used.

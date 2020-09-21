@@ -30,7 +30,7 @@
         },
         "code": "737"
     },
-    "notification":{
+    "notification": {
         "apprise1": "pover://00000000000000000000"
-        }
+    }
 }

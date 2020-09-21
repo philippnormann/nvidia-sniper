@@ -97,13 +97,15 @@ if __name__ == '__main__':
             else:
                 checkout.checkout_paypal(driver, timeout),
             logging.info('Checkout successful!')
-            # Send notification with apprise (https://github.com/caronc/apprise#supported-notifications)
 
             for value in customer['notification']:
                 apobj.add(customer['notification'][value])
+
+            driver.save_screenshot('screenshot.png')
             apobj.notify(
-                body='GPU Checkout successfull!',
-                title='NVIDIA-SNIPER',
+                title='Nvidia Sniper Alert',
+                body='GPU checkout successfull!',
+                attach='screenshot.png'
             )
             break
         else:
