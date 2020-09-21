@@ -52,27 +52,29 @@ if __name__ == '__main__':
     customer = read_json('customer.json')
     gpu_data = read_json('gpus.json')
 
-    gpus = list(gpu_data.keys())
-
-    target_gpu, _ = pick(gpus, 'Which GPU are you targeting?', indicator='=>')
-    target_url = gpu_data[target_gpu]['url']
+    target_gpu, _ = pick(list(gpu_data.keys()),
+                         'Which GPU are you targeting?',
+                         indicator='=>')
 
     payment_method, _ = pick(['credit-card', 'paypal'],
-                             'Which payment method do you want to use?', indicator='=>')
+                             'Which payment method do you want to use?',
+                             indicator='=>')
 
     auto_submit, _ = pick(['Yes', 'No'],
-                          'Do you want to automatically submit the order? (only works with credit card)', indicator='=>')
+                          'Do you want to automatically submit the order? (only works with credit card)',
+                          indicator='=>',  default_index=1)
     auto_submit = auto_submit == 'Yes'
 
     no_image_loading, _ = pick(['Yes', 'No'],
-                            'Do you want to disable image loading?', indicator='=>')
+                               'Do you want to disable image loading?', indicator='=>')
     no_image_loading = no_image_loading == 'Yes'
 
     timeout, _ = pick([' 2 seconds', ' 4 seconds', ' 8 seconds', '16 seconds', '32 seconds'],
                       'Please choose a timout / refresh interval', indicator='=>', default_index=2)
     timeout = int(timeout.replace('seconds', '').strip())
 
-    randomstring = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+    randomstring = ''.join(random.choice(string.ascii_lowercase)
+                           for i in range(10))
     startnumber = 0
 
     profile = FirefoxProfile()
@@ -80,6 +82,7 @@ if __name__ == '__main__':
         profile.set_preference('permissions.default.image', 2)
 
     driver = webdriver.Firefox(firefox_profile=profile)
+    target_url = gpu_data[target_gpu]['url']
 
     while True:
         anticache = "?" + str(randomstring) + "=" + str(startnumber)
