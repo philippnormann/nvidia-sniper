@@ -1,4 +1,5 @@
-# nvidia-sniper
+# nvidia-sniper 
+[![discord](https://img.shields.io/discord/756303724095471617.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/S2SUzX)
 
 This bot helps us buy Nvidia Founders Edition GPUs as soon as they become available.
 
@@ -6,8 +7,9 @@ This bot helps us buy Nvidia Founders Edition GPUs as soon as they become availa
 
 - Continuously monitor the availability of target GPU on www.nvidia.com
 - Automatically checkout item using PayPal or as guest (credit card)
-- Support for multiple locales (as specified in `data/customer.json`)
-- Support for multiple GPUs (as specified in `data/gpus.json`)
+- Automatically submit the order for credit card payment 
+- Support for multiple locales (as defined in `data/customer.json`)
+- Support for multiple GPUs (as defined in `data/gpus.json`)
 
 <img src="screencast.gif" alt="screencast" width="640"/>
 
@@ -44,7 +46,9 @@ pipenv install
     - `brew install geckodriver`
 4. Install Pipenv using 
     - `brew install pipenv`
-5. Install project dependencies using 
+5. Navigate to project directory using 
+    - `cd nvidia-sniper` 
+6. Install project dependencies using 
     - `pipenv install`
 
 ### Windows
@@ -60,6 +64,10 @@ pipenv install
 6. Install curses for Windows using 
     - `pipenv install windows-curses`
 
+## Updating
+To update `nvidia-sniper` use, `git pull` or download a fresh `.zip` archive from GitHub.
+
+Make sure to back up the `customer.json` in advance as it might get replaced in the process.
 ## Usage
 
 To use the bot, fill out `data/customer.json` and run the script.
@@ -116,7 +124,7 @@ The `country` field can have the following values:
 - `US`: United States
 
 ### `state`
-For `en-us` locale the `state` field can have the following values:
+For `en-us` locale, the `state` field can have the following values:
 - `AL`: Alabama
 - `AK`: Alaska
 - `AB`: Alberta
