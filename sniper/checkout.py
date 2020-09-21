@@ -6,6 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
+
+def scroll_to(driver, element):
+    driver.execute_script(
+        'arguments[0].scrollIntoView({block: "center"})', element)
+
+
 def add_to_basket(driver, timeout, locale, gpu_url, anticache):
     logging.info(f'Checking {locale} availability for {gpu_url}...')
     driver.get('https://www.nvidia.com/' + locale + gpu_url + anticache)
@@ -16,19 +22,10 @@ def add_to_basket(driver, timeout, locale, gpu_url, anticache):
         WebDriverWait(driver, timeout).until(add_to_basket_clickable)
         logging.info(f'Found available GPU: {gpu_url}')
         logging.info(f'Trying to add to basket...')
-        try:
-            driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
-        except ElementClickInterceptedException:
-            logging.info(f'Couldn\'t click the add to basket button, checking if theres a cookie prompt obscuring...')
-            # Maybe should be global? 
-            cookie_prompt_accept_id = 'cookiePolicy-btn-close'
-            try:
-                driver.find_element(By.ID, cookie_prompt_accept_id).click()
-            except NoSuchElementException:
-                logging.error(f'Couldn\'t find a prompt to close.')
-                return False
-            logging.info(f'Trying to add to basket again...')
-            driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
+        add_to_basket_btn = driver.find_element(
+            By.CSS_SELECTOR, add_to_basket_selector)
+        scroll_to(driver, add_to_basket_btn)
+        add_to_basket_btn.click()
         return True
     except TimeoutException:
         return False
@@ -112,7 +109,8 @@ def fill_out_form(driver, customer):
 
         try:
             driver.find_element(By.ID, 'shippingCountry')
-            country_select = Select(driver.find_element_by_id('shippingCountry'))
+            country_select = Select(
+                driver.find_element_by_id('shippingCountry'))
             country_select.select_by_value(customer['shipping']['country'])
         except NoSuchElementException:
             pass
@@ -155,15 +153,14 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     fill_out_form(driver, customer)
     submit_btn_selector = '#dr_siteButtons > .dr_button'
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
-    driver.find_element(
-        By.CSS_SELECTOR, submit_btn_selector).click()
+    driver.find_element(By.CSS_SELECTOR, submit_btn_selector).click()
 
     try:
         driver.find_element(By.CLASS_NAME, 'dr_error')
         driver.find_element(By.ID, 'selectionButton').click()
     except NoSuchElementException:
         pass
-    
+
     if auto_submit:
         WebDriverWait(driver, timeout).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, submit_btn_selector)))
