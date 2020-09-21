@@ -70,8 +70,6 @@ def checkout_guest(driver, customer):
 
     driver.find_element(By.ID, 'ccNum').send_keys(
         customer['credit']['card'])
-    driver.find_element(By.ID, 'ccNum').send_keys(
-        customer['credit']['card'])
 
     month_select = Select(driver.find_element_by_id('expirationDateMonth'))
     month_select.select_by_value(customer['credit']['expiration']['month'])
