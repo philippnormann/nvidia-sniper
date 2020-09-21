@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 
 
 def add_to_basket(driver, timeout, locale, gpu_url, anticache):
+    logging.info(f'Checking {locale} availability for {gpu_url}...')
     driver.get('https://www.nvidia.com/' + locale + gpu_url + anticache)
     try:
         add_to_basket_selector = '.singleSlideBanner .js-add-button'
@@ -44,6 +45,7 @@ def to_checkout(driver, timeout, locale):
 
 
 def fill_out_form(driver, customer):
+    driver.find_element(By.ID, (customer['shipping']['speed'])).click()
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -51,10 +53,18 @@ def fill_out_form(driver, customer):
 
     driver.find_element(By.ID, 'billingAddress1').send_keys(
         customer['billing']['street'])
+
+    try:
+        driver.find_element(By.ID, 'billingState')
+        state_select = Select(driver.find_element_by_id('billingState'))
+        state_select.select_by_value(customer['shipping']['state'])
+    except NoSuchElementException:
+        pass
+
     driver.find_element(By.ID, 'billingCity').send_keys(
         customer['billing']['city'])
     driver.find_element(By.ID, 'billingPostalCode').send_keys(
-        customer['billing']['zip'])
+        customer['billing']['post-code'])
 
     driver.find_element(By.ID, 'billingPhoneNumber').send_keys(
         customer['billing']['phone'])
@@ -72,10 +82,18 @@ def fill_out_form(driver, customer):
 
     driver.find_element(By.ID, 'shippingAddress1').send_keys(
         customer['shipping']['street'])
+
+    try:
+        driver.find_element(By.ID, 'shippingState')
+        state_select = Select(driver.find_element_by_id('shippingState'))
+        state_select.select_by_value(customer['shipping']['state'])
+    except NoSuchElementException:
+        pass
+
     driver.find_element(By.ID, 'shippingCity').send_keys(
         customer['shipping']['city'])
     driver.find_element(By.ID, 'shippingPostalCode').send_keys(
-        customer['shipping']['zip'])
+        customer['shipping']['post-code'])
 
     driver.find_element(By.ID, 'shippingPhoneNumber').send_keys(
         customer['shipping']['phone'])
@@ -108,7 +126,6 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
             driver.get('https://store.nvidia.com/store/nvidia/cart')
 
     fill_out_form(driver, customer)
-
     submit_btn_selector = '#dr_siteButtons > .dr_button'
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(
