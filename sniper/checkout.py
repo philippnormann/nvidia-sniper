@@ -68,7 +68,7 @@ def fill_out_form(driver, customer):
     try:
         driver.find_element(By.ID, 'billingState')
         state_select = Select(driver.find_element_by_id('billingState'))
-        state_select.select_by_value(customer['shipping']['state'])
+        state_select.select_by_value(customer['billing']['state'])
     except NoSuchElementException:
         pass
 
@@ -91,38 +91,38 @@ def fill_out_form(driver, customer):
     driver.find_element(By.ID, 'verEmail').send_keys(
         customer['billing']['email'])
 
-    driver.find_element(By.ID, 'shippingDifferentThanBilling').click()
+    if 'shipping' in customer:
+        driver.find_element(By.ID, 'shippingDifferentThanBilling').click()
 
-    driver.find_element(By.ID, 'shippingName1').send_keys(
-        customer['shipping']['first-name'])
-    driver.find_element(By.ID, 'shippingName2').send_keys(
-        customer['shipping']['last-name'])
+        driver.find_element(By.ID, 'shippingName1').send_keys(
+            customer['shipping']['first-name'])
+        driver.find_element(By.ID, 'shippingName2').send_keys(
+            customer['shipping']['last-name'])
 
-    driver.find_element(By.ID, 'shippingAddress1').send_keys(
-        customer['shipping']['street'])
+        driver.find_element(By.ID, 'shippingAddress1').send_keys(
+            customer['shipping']['street'])
 
-    try:
-        driver.find_element(By.ID, 'shippingState')
-        state_select = Select(driver.find_element_by_id('shippingState'))
-        state_select.select_by_value(customer['shipping']['state'])
-    except NoSuchElementException:
-        pass
-    
-    try:
-        driver.find_element(By.ID, 'shippingCountry')
-        country_select = Select(driver.find_element_by_id('shippingCountry'))
-        country_select.select_by_value(customer['shipping']['country'])
-    except NoSuchElementException:
-        pass
+        try:
+            driver.find_element(By.ID, 'shippingState')
+            state_select = Select(driver.find_element_by_id('shippingState'))
+            state_select.select_by_value(customer['shipping']['state'])
+        except NoSuchElementException:
+            pass
 
+        try:
+            driver.find_element(By.ID, 'shippingCountry')
+            country_select = Select(driver.find_element_by_id('shippingCountry'))
+            country_select.select_by_value(customer['shipping']['country'])
+        except NoSuchElementException:
+            pass
 
-    driver.find_element(By.ID, 'shippingCity').send_keys(
-        customer['shipping']['city'])
-    driver.find_element(By.ID, 'shippingPostalCode').send_keys(
-        customer['shipping']['post-code'])
+        driver.find_element(By.ID, 'shippingCity').send_keys(
+            customer['shipping']['city'])
+        driver.find_element(By.ID, 'shippingPostalCode').send_keys(
+            customer['shipping']['post-code'])
 
-    driver.find_element(By.ID, 'shippingPhoneNumber').send_keys(
-        customer['shipping']['phone'])
+        driver.find_element(By.ID, 'shippingPhoneNumber').send_keys(
+            customer['shipping']['phone'])
 
     driver.find_element(By.ID, 'ccNum').send_keys(
         customer['credit']['card'])
