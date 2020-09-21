@@ -45,7 +45,7 @@ pipenv install
 5. Install project dependencies using `pipenv install`
 
 ### Windows
-1. Install [Python](https://www.python.org/downloads/release/python-380/) for Windows
+1. Install [Python](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html) for Windows
 2. Install the latest version of [Firefox](https://www.mozilla.org/de/firefox/new/)
 3. Download [Geckodriver](https://github.com/mozilla/geckodriver/releases) and add it to PATH or folder source
 4. Install Pipenv using `pip install pipenv`
