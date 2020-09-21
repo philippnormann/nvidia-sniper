@@ -56,6 +56,7 @@ def to_checkout(driver, timeout, locale):
 
 
 def fill_out_form(driver, customer):
+    driver.find_element(By.ID, (customer['shipping']['speed'])).click()
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -68,6 +69,13 @@ def fill_out_form(driver, customer):
         driver.find_element(By.ID, 'billingState')
         state_select = Select(driver.find_element_by_id('billingState'))
         state_select.select_by_value(customer['billing']['state'])
+    except NoSuchElementException:
+        pass
+
+    try:
+        driver.find_element(By.ID, 'billingCountry')
+        country_select = Select(driver.find_element_by_id('billingCountry'))
+        country_select.select_by_value(customer['billing']['country'])
     except NoSuchElementException:
         pass
 
@@ -98,6 +106,13 @@ def fill_out_form(driver, customer):
             driver.find_element(By.ID, 'shippingState')
             state_select = Select(driver.find_element_by_id('shippingState'))
             state_select.select_by_value(customer['shipping']['state'])
+        except NoSuchElementException:
+            pass
+
+        try:
+            driver.find_element(By.ID, 'shippingCountry')
+            country_select = Select(driver.find_element_by_id('shippingCountry'))
+            country_select.select_by_value(customer['shipping']['country'])
         except NoSuchElementException:
             pass
 
@@ -137,7 +152,6 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
             driver.get('https://store.nvidia.com/store/nvidia/cart')
 
     fill_out_form(driver, customer)
-
     submit_btn_selector = '#dr_siteButtons > .dr_button'
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(
