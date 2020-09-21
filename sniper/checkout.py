@@ -1,11 +1,10 @@
 import logging
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-
 
 def add_to_basket(driver, timeout, locale, gpu_url, anticache):
     driver.get('https://www.nvidia.com/' + locale + gpu_url + anticache)
@@ -15,8 +14,20 @@ def add_to_basket(driver, timeout, locale, gpu_url, anticache):
             (By.CSS_SELECTOR, add_to_basket_selector))
         WebDriverWait(driver, timeout).until(add_to_basket_clickable)
         logging.info(f'Found available GPU: {gpu_url}')
-        logging.info(f'Adding to basket...')
-        driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
+        logging.info(f'Trying to add to basket...')
+        try:
+            driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
+        except ElementClickInterceptedException:
+            logging.info(f'Couldn\'t click the add to basket button, checking if theres a cookie prompt obscuring...')
+            # Maybe should be global? 
+            cookie_prompt_accept_id = 'cookiePolicy-btn-close'
+            try:
+                driver.find_element(By.ID, cookie_prompt_accept_id).click()
+            except NoSuchElementException:
+                logging.error(f'Couldn\'t find a prompt to close.')
+                return False
+            logging.info(f'Trying to add to basket again...')
+            driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
         return True
     except TimeoutException:
         return False
