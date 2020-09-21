@@ -7,8 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 
-def add_to_basket(driver, timeout, locale, gpu_url):
-    driver.get('https://www.nvidia.com/' + locale + gpu_url)
+def add_to_basket(driver, timeout, locale, gpu_url, anticache):
+    driver.get('https://www.nvidia.com/' + locale + gpu_url + anticache)
     try:
         add_to_basket_selector = '.singleSlideBanner .js-add-button'
         add_to_basket_clickable = EC.element_to_be_clickable(
