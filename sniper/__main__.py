@@ -42,7 +42,7 @@ data_path = src_path.parent / 'data'
 
 
 def read_json(filename):
-    with open(data_path / filename) as json_file:
+    with open(data_path / filename, encoding='utf-8') as json_file:
         return json.load(json_file)
 
 
