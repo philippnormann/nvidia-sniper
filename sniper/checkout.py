@@ -72,6 +72,13 @@ def fill_out_form(driver, customer):
     except NoSuchElementException:
         pass
 
+    try:
+        driver.find_element(By.ID, 'billingCountry')
+        country_select = Select(driver.find_element_by_id('billingCountry'))
+        country_select.select_by_value(customer['billing']['country'])
+    except NoSuchElementException:
+        pass
+
     driver.find_element(By.ID, 'billingCity').send_keys(
         customer['billing']['city'])
     driver.find_element(By.ID, 'billingPostalCode').send_keys(
@@ -100,6 +107,14 @@ def fill_out_form(driver, customer):
         state_select.select_by_value(customer['shipping']['state'])
     except NoSuchElementException:
         pass
+    
+    try:
+        driver.find_element(By.ID, 'shippingCountry')
+        country_select = Select(driver.find_element_by_id('shippingCountry'))
+        country_select.select_by_value(customer['shipping']['country'])
+    except NoSuchElementException:
+        pass
+
 
     driver.find_element(By.ID, 'shippingCity').send_keys(
         customer['shipping']['city'])
