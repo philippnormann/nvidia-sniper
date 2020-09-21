@@ -56,7 +56,6 @@ def to_checkout(driver, timeout, locale):
 
 
 def fill_out_form(driver, customer):
-    driver.find_element(By.ID, (customer['shipping']['speed'])).click()
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -92,6 +91,8 @@ def fill_out_form(driver, customer):
         customer['billing']['email'])
 
     if 'shipping' in customer:
+        driver.find_element(By.ID, customer['shipping']['speed']).click()
+
         driver.find_element(By.ID, 'shippingDifferentThanBilling').click()
 
         driver.find_element(By.ID, 'shippingName1').send_keys(
