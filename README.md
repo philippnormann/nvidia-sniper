@@ -200,3 +200,6 @@ For `en-us` locale, the `state` field can have the following values:
 - `WI`: Wisconsin
 - `WY`: Wyoming
 - `YT`: Yukon
+
+### `notification`
+Multiple apprise notifications can be send on successful checkout. See https://github.com/caronc/apprise#supported-notifications for more information. Add another entry to the notification dict for multiple providers, any name can be used.

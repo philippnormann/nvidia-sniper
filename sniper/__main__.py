@@ -3,6 +3,7 @@ import logging
 import colorama
 import random
 import string
+import apprise
 
 from pathlib import Path
 from time import sleep
@@ -45,6 +46,7 @@ def read_json(filename):
 if __name__ == '__main__':
     colorama.init()
     print(header)
+    apobj = apprise.Apprise()
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_format)
@@ -95,6 +97,14 @@ if __name__ == '__main__':
             else:
                 checkout.checkout_paypal(driver, timeout),
             logging.info('Checkout successful!')
+            # Send notification with apprise (https://github.com/caronc/apprise#supported-notifications)
+
+            for value in customer['notification']:
+                apobj.add(customer['notification'][value])
+            apobj.notify(
+                body='GPU Checkout successfull!',
+                title='NVIDIA-SNIPER',
+            )
             break
         else:
             logging.info('GPU currently not available')
