@@ -3,6 +3,7 @@ import logging
 import colorama
 import random
 import string
+import apprise
 
 from pathlib import Path
 from time import sleep
@@ -92,6 +93,14 @@ if __name__ == '__main__':
             else:
                 checkout.checkout_paypal(driver, timeout),
             logging.info('Checkout successful!')
+            # Send notification with apprise (https://github.com/caronc/apprise#supported-notifications)
+            for notifier in customer['notification']:
+                apobj = apprise.Apprise()
+                apobj.add(notifier)
+                apobj.notify(
+                    body='GPU Checkout successfull!',
+                    title='NVIDIA-SNIPER',
+                )
             break
         else:
             logging.info('GPU currently not available')

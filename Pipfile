@@ -11,6 +11,7 @@ autopep8 = "*"
 selenium = "*"
 pick = "*"
 colorama = "*"
+apprise = "*"
 
 [requires]
 python_version = "3.8"
