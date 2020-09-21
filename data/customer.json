@@ -4,8 +4,9 @@
         "first-name": "Jensen",
         "last-name": "Huang",
         "street": "Einsteinstr. 172",
+        "state": "",
         "city": "München",
-        "zip": "81677",
+        "post-code": "81677",
         "country": "DE",
         "email": "jensen@nvidia.com",
         "phone": "408-486-2000"
@@ -14,8 +15,9 @@
         "first-name": "Lisa",
         "last-name": "Su",
         "street": "Einsteinring 24",
+        "state": "",
         "city": "Aschheim",
-        "zip": "85609",
+        "post-code": "85609",
         "country": "DE",
         "phone": "89-4505-3199"
     },
