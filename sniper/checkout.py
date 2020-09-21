@@ -93,7 +93,7 @@ def fill_out_form(driver, customer):
         customer['credit']['code'])
 
 
-def checkout_guest(driver, timeout, customer):
+def checkout_guest(driver, timeout, customer, auto_submit=False):
     proceeded_to_form = False
     logging.info('Checking out as guest...')
     while not proceeded_to_form:
@@ -109,9 +109,14 @@ def checkout_guest(driver, timeout, customer):
 
     fill_out_form(driver, customer)
 
+    submit_btn_selector = '#dr_siteButtons > .dr_button'
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(
-        By.CSS_SELECTOR, '#dr_siteButtons > .dr_button').click()
+        By.CSS_SELECTOR, submit_btn_selector).click()
+    if auto_submit:
+        WebDriverWait(driver, timeout).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, submit_btn_selector)))
+        driver.find_element(By.CSS_SELECTOR, submit_btn_selector).click()
 
 
 def checkout_paypal(driver, timeout):
