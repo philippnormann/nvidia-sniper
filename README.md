@@ -27,13 +27,20 @@ cd nvidia-sniper
 pipenv install
 ```
 
+### Mac
+1. Install the latest version of [Firefox](https://www.mozilla.org/de/firefox/new/)
+2. Install [brew](https://brew.sh/index_de) package manager
+3. Install Geckodriver using `brew install geckodriver`
+4. Install Pipenv using `brew install pipenv`
+5. Install project dependencies using `pipenv install`
+
 ### Windows
-- Install [Python](https://www.python.org/downloads/release/python-380/) for Windows
-- Install the latest version of [Firefox](https://www.mozilla.org/de/firefox/new/)
-- Download [Geckodriver](https://github.com/mozilla/geckodriver/releases) and add it to PATH or folder source
-- Install Pipenv using `pip install pipenv`
-- Install project dependencies using `pipenv install`
-- Install curses for Windows using `pipenv install windows-curses`
+1. Install [Python](https://www.python.org/downloads/release/python-380/) for Windows
+2. Install the latest version of [Firefox](https://www.mozilla.org/de/firefox/new/)
+3. Download [Geckodriver](https://github.com/mozilla/geckodriver/releases) and add it to PATH or folder source
+4. Install Pipenv using `pip install pipenv`
+5. Install project dependencies using `pipenv install`
+6. Install curses for Windows using `pipenv install windows-curses`
 
 ## Usage
 
