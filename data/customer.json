@@ -19,7 +19,8 @@
         "city": "Aschheim",
         "post-code": "85609",
         "country": "DE",
-        "phone": "89-4505-3199"
+        "phone": "89-4505-3199",
+		"speed": "shippingOptionID2"
     },
     "credit": {
         "card": "4111111111111111",
