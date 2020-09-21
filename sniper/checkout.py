@@ -35,19 +35,14 @@ def to_checkout(driver, locale):
             checkout_reached = True
         except TimeoutException:
             logging.info(
-                "Timed out waiting for checkout page to load, trying again...")
-            driver.get(f"https://www.nvidia.com/{locale}/shop")
+                'Timed out waiting for checkout page to load, trying again...')
+            driver.get(f'https://www.nvidia.com/{locale}/shop')
             WebDriverWait(driver, TIMEOUT).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'nav-cart-link')))
             driver.find_element(By.CLASS_NAME, 'nav-cart-link').click()
 
 
-def checkout_guest(driver, customer):
-    logging.info('Checking out as guest...')
-    WebDriverWait(driver, TIMEOUT).until(
-        EC.element_to_be_clickable((By.ID, 'btnCheckoutAsGuest')))
-    driver.find_element(By.ID, 'btnCheckoutAsGuest').click()
-
+def fill_out_form(driver, customer):
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['name']['first'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -79,16 +74,38 @@ def checkout_guest(driver, customer):
     driver.find_element(By.ID, 'cardSecurityCode').send_keys(
         customer['credit']['code'])
 
-    driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+
+def checkout_guest(driver, customer):
+    proceeded_to_form = False
+    logging.info('Checking out as guest...')
+    while not proceeded_to_form:
+        try:
+            WebDriverWait(driver, TIMEOUT).until(
+                EC.element_to_be_clickable((By.ID, 'btnCheckoutAsGuest')))
+            driver.find_element(By.ID, 'btnCheckoutAsGuest').click()
+            proceeded_to_form = True
+        except TimeoutException:
+            logging.info(
+                'Timed out waiting for checkout button to load, trying again...')
+            driver.get('https://store.nvidia.com/store/nvidia/cart')
+
+    fill_out_form(driver, customer)
+
+    driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(
         By.CSS_SELECTOR, '#dr_siteButtons > .dr_button').click()
 
 
 def checkout_paypal(driver):
+    proceeded_to_paypal = False
     logging.info('Checking out using PayPal Express...')
-    try:
-        WebDriverWait(driver, TIMEOUT).until(
-            EC.element_to_be_clickable((By.ID, 'lnkPayPalExpressCheckout')))
-        driver.find_element(By.ID, 'lnkPayPalExpressCheckout').click()
-    except TimeoutException:
-        logging.info("Timed out waiting for PayPal button to load")
+    while not proceeded_to_paypal:
+        try:
+            WebDriverWait(driver, TIMEOUT).until(
+                EC.element_to_be_clickable((By.ID, 'lnkPayPalExpressCheckout')))
+            driver.find_element(By.ID, 'lnkPayPalExpressCheckout').click()
+            proceeded_to_paypal = True
+        except TimeoutException:
+            logging.info(
+                'Timed out waiting for PayPal button to load, trying again...')
+            driver.get('https://store.nvidia.com/store/nvidia/cart')
