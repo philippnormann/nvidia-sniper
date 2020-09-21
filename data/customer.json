@@ -1,23 +1,30 @@
 {
     "locale": "de-de",
-    "name": {
-        "first": "Jensen",
-        "last": "Huang"
-    },
-    "address": {
+    "billing": {
+        "first-name": "Jensen",
+        "last-name": "Huang",
         "street": "Einsteinstr. 172",
         "city": "München",
         "zip": "81677",
-        "country": "DE"
+        "country": "DE",
+        "email": "jensen@nvidia.com",
+        "phone": "408-486-2000"
     },
-    "email": "jensen@nvidia.com",
-    "phone": "408-486-2000",
+    "shipping": {
+        "first-name": "Lisa",
+        "last-name": "Su",
+        "street": "Einsteinring 24",
+        "city": "Aschheim",
+        "zip": "85609",
+        "country": "DE",
+        "phone": "89-4505-3199"
+    },
     "credit": {
         "card": "4111111111111111",
         "expiration": {
             "month": "3",
             "year": "2030"
         },
-        "code": 737
+        "code": "737"
     }
 }

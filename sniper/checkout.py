@@ -45,23 +45,40 @@ def to_checkout(driver, timeout, locale):
 
 def fill_out_form(driver, customer):
     driver.find_element(By.ID, 'billingName1').send_keys(
-        customer['name']['first'])
+        customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
-        customer['name']['last'])
+        customer['billing']['last-name'])
 
     driver.find_element(By.ID, 'billingAddress1').send_keys(
-        customer['address']['street'])
+        customer['billing']['street'])
     driver.find_element(By.ID, 'billingCity').send_keys(
-        customer['address']['city'])
+        customer['billing']['city'])
     driver.find_element(By.ID, 'billingPostalCode').send_keys(
+        customer['billing']['zip'])
 
-        customer['address']['zip'])
     driver.find_element(By.ID, 'billingPhoneNumber').send_keys(
-        customer['phone'])
+        customer['billing']['phone'])
     driver.find_element(By.ID, 'email').send_keys(
-        customer['email'])
+        customer['billing']['email'])
     driver.find_element(By.ID, 'verEmail').send_keys(
-        customer['email'])
+        customer['billing']['email'])
+
+    driver.find_element(By.ID, 'shippingDifferentThanBilling').click()
+
+    driver.find_element(By.ID, 'shippingName1').send_keys(
+        customer['shipping']['first-name'])
+    driver.find_element(By.ID, 'shippingName2').send_keys(
+        customer['shipping']['last-name'])
+
+    driver.find_element(By.ID, 'shippingAddress1').send_keys(
+        customer['shipping']['street'])
+    driver.find_element(By.ID, 'shippingCity').send_keys(
+        customer['shipping']['city'])
+    driver.find_element(By.ID, 'shippingPostalCode').send_keys(
+        customer['shipping']['zip'])
+
+    driver.find_element(By.ID, 'shippingPhoneNumber').send_keys(
+        customer['shipping']['phone'])
 
     driver.find_element(By.ID, 'ccNum').send_keys(
         customer['credit']['card'])
