@@ -10,6 +10,7 @@ autopep8 = "*"
 [packages]
 selenium = "*"
 pick = "*"
+windows-curses = {version = "*", sys_platform = "== 'win32'"}
 
 [requires]
 python_version = "3.8"
