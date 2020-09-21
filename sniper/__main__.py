@@ -41,6 +41,7 @@ def read_json(filename):
 
 
 if __name__ == '__main__':
+    colorama.init()
     print(header)
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
