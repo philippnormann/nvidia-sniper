@@ -136,6 +136,11 @@ def fill_out_form(driver, customer):
         customer['credit']['code'])
 
 
+def skip_address_check(driver):
+    driver.find_element(By.ID, 'billingAddressOptionRow2').click()
+    driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+    driver.find_element(By.ID, 'selectionButton').click()
+
 def checkout_guest(driver, timeout, customer, auto_submit=False):
     proceeded_to_form = False
     logging.info('Checking out as guest...')
@@ -157,7 +162,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
 
     try:
         driver.find_element(By.CLASS_NAME, 'dr_error')
-        driver.find_element(By.ID, 'selectionButton').click()
+        skip_address_check(driver)
     except NoSuchElementException:
         pass
 
