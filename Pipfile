@@ -10,6 +10,7 @@ autopep8 = "*"
 [packages]
 selenium = "*"
 pick = "*"
+colorama = "*"
 
 [requires]
 python_version = "3.8"

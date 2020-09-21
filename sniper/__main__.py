@@ -1,40 +1,34 @@
 import json
 import logging
+import colorama
 
 from pathlib import Path
 from time import sleep
 
 from pick import pick
 from selenium import webdriver
+from colorama import Fore, Style
 from selenium.webdriver.firefox.options import Options
 
 from selenium.webdriver.common.by import By
 import sniper.checkout as checkout
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-
 header = f"""
-{bcolors.OKGREEN}
+{Fore.GREEN}
 ███╗   ██╗██╗   ██╗██╗██████╗ ██╗ █████╗     
 ████╗  ██║██║   ██║██║██╔══██╗██║██╔══██╗    
 ██╔██╗ ██║██║   ██║██║██║  ██║██║███████║    
 ██║╚██╗██║╚██╗ ██╔╝██║██║  ██║██║██╔══██║    
 ██║ ╚████║ ╚████╔╝ ██║██████╔╝██║██║  ██║    
 ╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═════╝ ╚═╝╚═╝  ╚═╝    
-{bcolors.FAIL}
+{Fore.RED}
 ███████╗███╗   ██╗██╗██████╗ ███████╗██████╗ 
 ██╔════╝████╗  ██║██║██╔══██╗██╔════╝██╔══██╗
 ███████╗██╔██╗ ██║██║██████╔╝█████╗  ██████╔╝
 ╚════██║██║╚██╗██║██║██╔═══╝ ██╔══╝  ██╔══██╗
 ███████║██║ ╚████║██║██║     ███████╗██║  ██║
 ╚══════╝╚═╝  ╚═══╝╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
-{bcolors.ENDC}
+{Style.RESET_ALL}
 """
 
 src_path = Path(__file__).parent
@@ -62,7 +56,7 @@ if __name__ == "__main__":
 
     payment_method, _ = pick(["credit-card", "paypal"],
                              'Please choose a payment method', indicator='=>')
-    
+
     driver = webdriver.Firefox()
 
     while True:
