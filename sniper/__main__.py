@@ -60,6 +60,10 @@ if __name__ == '__main__':
     image_loading, _ = pick(['enabled', 'disabled'],
                             'Please choose if images should be loaded', indicator='=>')
 
+    timeout, _ = pick([' 2 seconds', ' 4 seconds', ' 8 seconds', '16 seconds', '32 seconds'],
+                      'Please choose a timout / refresh interval', indicator='=>')
+    timeout = int(timeout.replace('seconds', '').strip())
+
     profile = FirefoxProfile()
     if image_loading == 'disabled':
         profile.set_preference('permissions.default.image', 2)
@@ -68,13 +72,13 @@ if __name__ == '__main__':
 
     while True:
         success = checkout.add_to_basket(
-            driver, target_url, customer['locale'])
+            driver, timeout, customer['locale'], target_url)
         if success:
-            checkout.to_checkout(driver, customer['locale'])
+            checkout.to_checkout(driver, timeout, customer['locale'])
             if payment_method == 'credit-card':
-                checkout.checkout_guest(driver, customer)
+                checkout.checkout_guest(driver, timeout, customer)
             else:
-                checkout.checkout_paypal(driver)
+                checkout.checkout_paypal(driver, timeout),
             logging.info('Checkout successful!')
             break
         else:

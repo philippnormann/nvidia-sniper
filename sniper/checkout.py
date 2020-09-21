@@ -6,16 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-TIMEOUT = 10
 
-
-def add_to_basket(driver, gpu_url, locale):
+def add_to_basket(driver, timeout, locale, gpu_url):
     driver.get('https://www.nvidia.com/' + locale + gpu_url)
     try:
         add_to_basket_selector = '.singleSlideBanner .js-add-button'
         add_to_basket_clickable = EC.element_to_be_clickable(
             (By.CSS_SELECTOR, add_to_basket_selector))
-        WebDriverWait(driver, TIMEOUT).until(add_to_basket_clickable)
+        WebDriverWait(driver, timeout).until(add_to_basket_clickable)
         logging.info(f'Found available GPU: {gpu_url}')
         logging.info(f'Adding to basket...')
         driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
@@ -24,22 +22,25 @@ def add_to_basket(driver, gpu_url, locale):
         return False
 
 
-def to_checkout(driver, locale):
+def to_checkout(driver, timeout, locale):
     checkout_reached = False
     logging.info('Going to checkout page...')
     while not checkout_reached:
         try:
             driver.find_element(By.CLASS_NAME, 'cart__checkout-button').click()
-            WebDriverWait(driver, TIMEOUT).until(EC.url_contains(
-                'store.nvidia.com/store?Action=DisplayPage'))
+            WebDriverWait(driver, timeout).until(
+                EC.url_contains('store.nvidia.com'))
             checkout_reached = True
         except TimeoutException:
             logging.info(
                 'Timed out waiting for checkout page to load, trying again...')
-            driver.get(f'https://www.nvidia.com/{locale}/shop')
-            WebDriverWait(driver, TIMEOUT).until(
-                EC.element_to_be_clickable((By.CLASS_NAME, 'nav-cart-link')))
-            driver.find_element(By.CLASS_NAME, 'nav-cart-link').click()
+            try:
+                driver.find_element(By.CLASS_NAME, 'cart__checkout-button')
+            except NoSuchElementException:
+                driver.get(f'https://www.nvidia.com/{locale}/shop')
+                WebDriverWait(driver, timeout).until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, 'nav-cart-link')))
+                driver.find_element(By.CLASS_NAME, 'nav-cart-link').click()
 
 
 def fill_out_form(driver, customer):
@@ -75,12 +76,12 @@ def fill_out_form(driver, customer):
         customer['credit']['code'])
 
 
-def checkout_guest(driver, customer):
+def checkout_guest(driver, timeout, customer):
     proceeded_to_form = False
     logging.info('Checking out as guest...')
     while not proceeded_to_form:
         try:
-            WebDriverWait(driver, TIMEOUT).until(
+            WebDriverWait(driver, timeout).until(
                 EC.element_to_be_clickable((By.ID, 'btnCheckoutAsGuest')))
             driver.find_element(By.ID, 'btnCheckoutAsGuest').click()
             proceeded_to_form = True
@@ -96,12 +97,12 @@ def checkout_guest(driver, customer):
         By.CSS_SELECTOR, '#dr_siteButtons > .dr_button').click()
 
 
-def checkout_paypal(driver):
+def checkout_paypal(driver, timeout):
     proceeded_to_paypal = False
     logging.info('Checking out using PayPal Express...')
     while not proceeded_to_paypal:
         try:
-            WebDriverWait(driver, TIMEOUT).until(
+            WebDriverWait(driver, timeout).until(
                 EC.element_to_be_clickable((By.ID, 'lnkPayPalExpressCheckout')))
             driver.find_element(By.ID, 'lnkPayPalExpressCheckout').click()
             proceeded_to_paypal = True
