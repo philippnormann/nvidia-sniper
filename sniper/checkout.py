@@ -12,14 +12,13 @@ TIMEOUT = 10
 def add_to_basket(driver, gpu_url, locale):
     driver.get('https://www.nvidia.com/' + locale + gpu_url)
     try:
-        add_to_basket_btn_path = '//div[contains(@class,"singleSlideBanner")]' + \
-            '//div[contains(@class, "js-add-button")]'
+        add_to_basket_selector = '.singleSlideBanner .js-add-button'
         add_to_basket_clickable = EC.element_to_be_clickable(
-            (By.XPATH, add_to_basket_btn_path))
+            (By.CSS_SELECTOR, add_to_basket_selector))
         WebDriverWait(driver, TIMEOUT).until(add_to_basket_clickable)
         logging.info(f'Found available GPU: {gpu_url}')
         logging.info(f'Adding to basket...')
-        driver.find_element(By.XPATH, add_to_basket_btn_path).click()
+        driver.find_element(By.CSS_SELECTOR, add_to_basket_selector).click()
         return True
     except TimeoutException:
         return False
