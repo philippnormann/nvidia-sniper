@@ -157,6 +157,13 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(
         By.CSS_SELECTOR, submit_btn_selector).click()
+
+    try:
+        driver.find_element(By.CLASS_NAME, 'dr_error')
+        driver.find_element(By.ID, 'selectionButton').click()
+    except NoSuchElementException:
+        pass
+    
     if auto_submit:
         WebDriverWait(driver, timeout).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, submit_btn_selector)))
