@@ -11,6 +11,16 @@ This bot helps us buy Nvidia Founders Edition GPUs as soon as they become availa
 
 <img src="screencast.gif" alt="screencast" width="500"/>
 
+## Supported GPUs
+
+- GeForce RTX 3090
+- GeForce RTX 3080
+- GeForce RTX 3070
+- NVIDIA TITAN RTX
+- GeForce RTX 2080 Super
+- GeForce RTX 2070 Super
+- GeForce RTX 2060 Super
+
 ## Installation
 
 To run the bot, we need the following things:
