@@ -38,7 +38,7 @@ pipenv install
 ```
 
 ### Mac
-1. Install the latest version of [Firefox](https://www.mozilla.org/de/firefox/new/)
+1. Install the latest version of [Firefox](https://www.firefox.com/)
 2. Install [brew](https://brew.sh/index_de) package manager
 3. Install Geckodriver using 
     - `brew install geckodriver`
@@ -49,7 +49,7 @@ pipenv install
 
 ### Windows
 1. Install [Python](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html) for Windows
-2. Install the latest version of [Firefox](https://www.mozilla.org/de/firefox/new/)
+2. Install the latest version of [Firefox](https://www.firefox.com/)
 3. Download [Geckodriver](https://github.com/mozilla/geckodriver/releases) and add executable to PATH or to `nvidia-sniper` directory
 4. Open PowerShell and install Pipenv using 
     - `pip install pipenv`
