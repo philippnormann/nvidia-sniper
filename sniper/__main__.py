@@ -1,6 +1,8 @@
 import json
 import logging
 import colorama
+import random
+import string
 
 from pathlib import Path
 from time import sleep
@@ -70,6 +72,9 @@ if __name__ == '__main__':
                       'Please choose a timout / refresh interval', indicator='=>', default_index=2)
     timeout = int(timeout.replace('seconds', '').strip())
 
+    randomstring = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+    startnumber = 0
+
     profile = FirefoxProfile()
     if no_image_loading:
         profile.set_preference('permissions.default.image', 2)
@@ -77,8 +82,9 @@ if __name__ == '__main__':
     driver = webdriver.Firefox(firefox_profile=profile)
 
     while True:
+        anticache = "?" + str(randomstring) + "=" + str(startnumber)
         success = checkout.add_to_basket(
-            driver, timeout, customer['locale'], target_url)
+            driver, timeout, customer['locale'], target_url, anticache)
         if success:
             checkout.to_checkout(driver, timeout, customer['locale'])
             if payment_method == 'credit-card':
@@ -89,3 +95,4 @@ if __name__ == '__main__':
             break
         else:
             logging.info('GPU currently not available')
+        startnumber += 1
