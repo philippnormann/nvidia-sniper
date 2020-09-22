@@ -189,9 +189,10 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     except NoSuchElementException:
         pass
 
+    click_recaptcha(driver, timeout)
+
     if auto_submit:
         try:
-            click_recaptcha(driver, timeout)
             submit_clickable = EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, submit_btn_selector))
             WebDriverWait(driver, timeout).until(submit_clickable)
