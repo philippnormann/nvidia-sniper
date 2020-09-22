@@ -155,6 +155,8 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
             guest_checkout_btn = driver.find_element(By.ID, 'btnCheckoutAsGuest')
             scroll_to(driver, guest_checkout_btn)
             guest_checkout_btn.click()
+            WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.ID, 'billingName1')))
             proceeded_to_form = True
         except TimeoutException:
             logging.info(
