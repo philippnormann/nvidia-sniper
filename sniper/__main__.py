@@ -1,12 +1,15 @@
+import os
 import json
 import logging
 import colorama
 import random
 import string
 import apprise
+import configparser
 
 from pathlib import Path
 from time import sleep
+from sys import platform
 
 from pick import pick
 from colorama import Fore, Style
@@ -14,7 +17,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options, FirefoxProfile
 from webdriver_manager.firefox import GeckoDriverManager
-
 import sniper.checkout as checkout
 
 header = f'''
@@ -42,6 +44,21 @@ data_path = src_path.parent / 'data'
 def read_json(filename):
     with open(data_path / filename, encoding='utf-8') as json_file:
         return json.load(json_file)
+
+
+def get_default_profile():
+    if platform == 'linux' or platform == 'linux2':
+        mozilla_profile = Path(os.getenv('HOME')) / '.mozilla' / 'firefox'
+    elif platform == 'darwin':
+        mozilla_profile = Path(os.getenv('HOME')) / \
+            'Library' / 'Application Support' / 'Firefox'
+    elif platform == 'win32':
+        mozilla_profile = Path(os.getenv('APPDATA')) / 'Mozilla' / 'Firefox'
+
+    mozilla_profile_ini = mozilla_profile / 'profiles.ini'
+    profile = configparser.ConfigParser()
+    profile.read(mozilla_profile_ini)
+    return mozilla_profile / profile.get('Profile0', 'Path')
 
 
 if __name__ == '__main__':
@@ -75,11 +92,19 @@ if __name__ == '__main__':
                            for i in range(10))
     startnumber = 0
 
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+    default_profile = get_default_profile().resolve()
+    profile = FirefoxProfile(default_profile)
+    profile.set_preference('dom.webdriver.enabled', False)
+    profile.set_preference('useAutomationExtension', False)
+    profile.update_preferences()
+
+    driver = webdriver.Firefox(
+        firefox_profile=profile, executable_path=GeckoDriverManager().install())
+
     target_url = gpu_data[target_gpu]['url']
 
     while True:
-        anticache = "?" + str(randomstring) + "=" + str(startnumber)
+        anticache = '?' + str(randomstring) + '=' + str(startnumber)
         success = checkout.add_to_basket(
             driver, timeout, customer['locale'], target_url, anticache)
         if success:
