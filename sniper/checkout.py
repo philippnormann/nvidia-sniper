@@ -148,7 +148,9 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
         try:
             WebDriverWait(driver, timeout).until(
                 EC.element_to_be_clickable((By.ID, 'btnCheckoutAsGuest')))
-            driver.find_element(By.ID, 'btnCheckoutAsGuest').click()
+            guest_checkout_btn = driver.find_element(By.ID, 'btnCheckoutAsGuest')
+            scroll_to(driver, guest_checkout_btn)
+            guest_checkout_btn.click()
             proceeded_to_form = True
         except TimeoutException:
             logging.info(
