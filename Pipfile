@@ -8,9 +8,10 @@ pylint = "*"
 autopep8 = "*"
 
 [packages]
-selenium = "*"
 pick = "*"
 colorama = "*"
+selenium = "*"
+webdriver-manager = "*"
 apprise = "*"
 
 [requires]

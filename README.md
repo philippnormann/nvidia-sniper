@@ -33,7 +33,7 @@ To run the bot, we need the following things:
 
 ### Linux (Ubuntu)
 ```bash
-sudo apt install firefox firefox-geckodriver python3 pipenv
+sudo apt install firefox python3 pipenv
 cd nvidia-sniper
 pipenv install
 ```
@@ -41,22 +41,19 @@ pipenv install
 ### Mac
 1. Install the latest version of [Firefox](https://www.firefox.com/)
 2. Install [brew](https://brew.sh/index_de) package manager
-3. Install Geckodriver using 
-    - `brew install geckodriver`
-4. Install Pipenv using 
+3. Install Pipenv using 
     - `brew install pipenv`
-5. Navigate to project directory using 
+4. Navigate to project directory using 
     - `cd nvidia-sniper` 
-6. Install project dependencies using 
+5. Install project dependencies using 
     - `pipenv install`
 
 ### Windows
 1. Install [Python](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html) for Windows
 2. Install the latest version of [Firefox](https://www.firefox.com/)
-3. Download [Geckodriver](https://github.com/mozilla/geckodriver/releases) and add executable to PATH or to `nvidia-sniper` directory
-4. Open PowerShell and install Pipenv using 
+3. Open PowerShell and install Pipenv using 
     - `pip install pipenv`
-5. Navigate to project directory using 
+4. Navigate to project directory using 
     - `cd nvidia-sniper` 
 5. Install project dependencies using 
     - `pipenv install`

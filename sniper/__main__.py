@@ -9,11 +9,12 @@ from pathlib import Path
 from time import sleep
 
 from pick import pick
-from selenium import webdriver
 from colorama import Fore, Style
-from selenium.webdriver.firefox.options import Options, FirefoxProfile
-
+from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options, FirefoxProfile
+from webdriver_manager.firefox import GeckoDriverManager
+
 import sniper.checkout as checkout
 
 header = f'''
@@ -81,8 +82,8 @@ if __name__ == '__main__':
     profile = FirefoxProfile()
     if no_image_loading:
         profile.set_preference('permissions.default.image', 2)
-
-    driver = webdriver.Firefox(firefox_profile=profile)
+    
+    driver = webdriver.Firefox(firefox_profile=profile, executable_path=GeckoDriverManager().install())
     target_url = gpu_data[target_gpu]['url']
 
     while True:
