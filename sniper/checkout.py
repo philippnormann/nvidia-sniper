@@ -59,7 +59,9 @@ def fill_out_form(driver, customer):
         customer['billing']['last-name'])
 
     driver.find_element(By.ID, 'billingAddress1').send_keys(
-        customer['billing']['street'])
+        customer['billing']['address-line-1'])
+    driver.find_element(By.ID, 'billingAddress2').send_keys(
+        customer['billing']['address-line-2'])
 
     try:
         driver.find_element(By.ID, 'billingState')
@@ -98,7 +100,9 @@ def fill_out_form(driver, customer):
             customer['shipping']['last-name'])
 
         driver.find_element(By.ID, 'shippingAddress1').send_keys(
-            customer['shipping']['street'])
+            customer['shipping']['address-line-1'])
+        driver.find_element(By.ID, 'shippingAddress2').send_keys(
+            customer['shipping']['address-line-2'])
 
         try:
             driver.find_element(By.ID, 'shippingState')

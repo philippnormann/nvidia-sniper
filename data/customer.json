@@ -3,7 +3,8 @@
     "billing": {
         "first-name": "Jensen",
         "last-name": "Huang",
-        "street": "Einsteinstr. 172",
+        "address-line-1": "Einsteinstr. 172",
+        "address-line-2": "",
         "state": "",
         "city": "München",
         "post-code": "81677",
@@ -14,7 +15,8 @@
     "shipping": {
         "first-name": "Lisa",
         "last-name": "Su",
-        "street": "Einsteinring 24",
+        "address-line-1": "Einsteinring 24",
+        "address-line-2": "",
         "state": "",
         "city": "Aschheim",
         "post-code": "85609",
