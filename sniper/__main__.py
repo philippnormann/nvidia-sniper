@@ -2,8 +2,6 @@ import os
 import json
 import logging
 import colorama
-import random
-import string
 import apprise
 import configparser
 
@@ -88,10 +86,6 @@ if __name__ == '__main__':
                       'Please choose a timout / refresh interval', indicator='=>', default_index=2)
     timeout = int(timeout.replace('seconds', '').strip())
 
-    randomstring = ''.join(random.choice(string.ascii_lowercase)
-                           for i in range(10))
-    startnumber = 0
-
     default_profile = get_default_profile().resolve()
     profile = FirefoxProfile(default_profile)
     profile.set_preference('dom.webdriver.enabled', False)
@@ -104,9 +98,8 @@ if __name__ == '__main__':
     target_url = gpu_data[target_gpu]['url']
 
     while True:
-        anticache = '?' + str(randomstring) + '=' + str(startnumber)
         success = checkout.add_to_basket(
-            driver, timeout, customer['locale'], target_url, anticache)
+            driver, timeout, customer['locale'], target_url)
         if success:
             checkout.to_checkout(driver, timeout, customer['locale'])
             if payment_method == 'credit-card':
@@ -135,4 +128,3 @@ if __name__ == '__main__':
             break
         else:
             logging.info('GPU currently not available')
-        startnumber += 1

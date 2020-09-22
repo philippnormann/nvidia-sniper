@@ -1,4 +1,6 @@
 import logging
+import random
+import string
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
@@ -13,9 +15,13 @@ def scroll_to(driver, element):
         'arguments[0].scrollIntoView({block: "center"})', element)
 
 
-def add_to_basket(driver, timeout, locale, gpu_url, anticache):
+def add_to_basket(driver, timeout, locale, gpu_url):
     logging.info(f'Checking {locale} availability for {gpu_url}...')
-    driver.get('https://www.nvidia.com/' + locale + gpu_url + anticache)
+    anticache_key = ''.join(random.choice(string.ascii_lowercase)
+                            for i in range(5))
+    anticache_value = random.randint(0, 9999)
+    driver.get(
+        f'https://www.nvidia.com/{locale}{gpu_url}?{anticache_key}={anticache_value}')
     try:
         add_to_basket_selector = '.singleSlideBanner .js-add-button'
         add_to_basket_clickable = EC.element_to_be_clickable(
