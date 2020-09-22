@@ -1,5 +1,4 @@
-# nvidia-sniper 
-[![discord](https://img.shields.io/discord/756303724095471617.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/S2SUzX)
+# nvidia-sniper [![discord](https://img.shields.io/discord/756303724095471617.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/S2SUzX)
 
 This bot helps us buy Nvidia Founders Edition GPUs as soon as they become available.
 
@@ -80,7 +79,7 @@ pipenv run python -m sniper
 In the `customer.json` file, some fields require specific values.
 
 ### `notification`
-The bot can send multiple apprise notifications, including a screenshot attachment upon successful checkout. See https://github.com/caronc/apprise#supported-notifications for more information. Add additional entries to the `notification` dictionary in the `customer.json` file for multiple providers. 
+The bot can send multiple apprise notifications, including a screenshot attachment upon successful checkout. See https://github.com/caronc/apprise#supported-notifications for more information. Add additional entries to the `notification` dictionary in the `customer.json` file for multiple providers. For each notification channel, a custom `message` and a `title` can be set. Additionally, the `screenshot` attachment can be toggled per channel.
 
 A couple of example URLs for different notification services: 
 - `pover://user@token`: Pushover

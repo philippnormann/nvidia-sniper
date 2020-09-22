@@ -31,6 +31,17 @@
         "code": "737"
     },
     "notification": {
-        "apprise1": "pover://00000000000000000000"
+        "apprise-1": {
+            "url": "tgram://bottoken/ChatID",
+            "title": "Nvidia Sniper Alert",
+            "message": "GPU checkout successfull!",
+            "screenshot": true
+        },
+        "apprise-2": {
+            "url": "pover://user@token",
+            "title": "Nvidia Sniper Alert",
+            "message": "GPU checkout successfull!",
+            "screenshot": false
+        }
     }
 }

@@ -46,7 +46,6 @@ def read_json(filename):
 if __name__ == '__main__':
     colorama.init()
     print(header)
-    apobj = apprise.Apprise()
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_format)
@@ -96,17 +95,25 @@ if __name__ == '__main__':
                 checkout.checkout_guest(driver, timeout, customer, auto_submit)
             else:
                 checkout.checkout_paypal(driver, timeout),
+
             logging.info('Checkout successful!')
-
-            for value in customer['notification']:
-                apobj.add(customer['notification'][value])
-
             driver.save_screenshot('screenshot.png')
-            apobj.notify(
-                title='Nvidia Sniper Alert',
-                body='GPU checkout successfull!',
-                attach='screenshot.png'
-            )
+
+            for name, service in customer['notification'].items():
+                logging.info(f'Sending notifications to {name}')
+                apobj = apprise.Apprise()
+                apobj.add(service['url'])
+                if service['screenshot']:
+                    apobj.notify(
+                        title=service['title'],
+                        body=service['message'],
+                        attach='screenshot.png'
+                    )
+                else:
+                    apobj.notify(
+                        title=service['title'],
+                        body=service['message'],
+                    )
             break
         else:
             logging.info('GPU currently not available')
