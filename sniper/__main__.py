@@ -67,10 +67,6 @@ if __name__ == '__main__':
                           indicator='=>',  default_index=1)
     auto_submit = auto_submit == 'Yes'
 
-    no_image_loading, _ = pick(['Yes', 'No'],
-                               'Do you want to disable image loading?', indicator='=>')
-    no_image_loading = no_image_loading == 'Yes'
-
     timeout, _ = pick([' 2 seconds', ' 4 seconds', ' 8 seconds', '16 seconds', '32 seconds'],
                       'Please choose a timout / refresh interval', indicator='=>', default_index=2)
     timeout = int(timeout.replace('seconds', '').strip())
@@ -79,11 +75,7 @@ if __name__ == '__main__':
                            for i in range(10))
     startnumber = 0
 
-    profile = FirefoxProfile()
-    if no_image_loading:
-        profile.set_preference('permissions.default.image', 2)
-    
-    driver = webdriver.Firefox(firefox_profile=profile, executable_path=GeckoDriverManager().install())
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
     target_url = gpu_data[target_gpu]['url']
 
     while True:
