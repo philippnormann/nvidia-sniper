@@ -91,7 +91,7 @@ The `locale` field can have the following values:
 - `de-at`: Austria
 - `fr-fr`: Belgium
 - `en-us`: Canada
-- `en-gb`: Czech Republic
+- `cs-cz`: Czech Republic
 - `da-dk`: Denmark
 - `fi-fi`: Finland
 - `fr-fr`: France
