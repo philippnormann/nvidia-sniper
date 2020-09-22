@@ -1,9 +1,10 @@
 import logging
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 
@@ -145,6 +146,19 @@ def skip_address_check(driver):
     driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
+
+def click_recaptcha(driver, timeout):
+    recaptcha_frame_selector = "iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']"
+    recaptcha_ready = EC.frame_to_be_available_and_switch_to_it(
+        (By.CSS_SELECTOR, recaptcha_frame_selector))
+    WebDriverWait(driver, timeout).until(recaptcha_ready)
+    recaptcha_box_xpath = "//span[@id='recaptcha-anchor']"
+    checkbox_ready = EC.element_to_be_clickable(
+        (By.XPATH, recaptcha_box_xpath))
+    WebDriverWait(driver, timeout).until(checkbox_ready).click()
+    driver.switch_to.default_content()
+
+
 def checkout_guest(driver, timeout, customer, auto_submit=False):
     proceeded_to_form = False
     logging.info('Checking out as guest...')
@@ -152,7 +166,8 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
         try:
             WebDriverWait(driver, timeout).until(
                 EC.element_to_be_clickable((By.ID, 'btnCheckoutAsGuest')))
-            guest_checkout_btn = driver.find_element(By.ID, 'btnCheckoutAsGuest')
+            guest_checkout_btn = driver.find_element(
+                By.ID, 'btnCheckoutAsGuest')
             scroll_to(driver, guest_checkout_btn)
             guest_checkout_btn.click()
             WebDriverWait(driver, timeout).until(
@@ -175,9 +190,15 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
         pass
 
     if auto_submit:
-        WebDriverWait(driver, timeout).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, submit_btn_selector)))
-        driver.find_element(By.CSS_SELECTOR, submit_btn_selector).click()
+        try:
+            click_recaptcha(driver, timeout)
+            submit_clickable = EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, submit_btn_selector))
+            WebDriverWait(driver, timeout).until(submit_clickable)
+            driver.find_element(By.CSS_SELECTOR, submit_btn_selector).click()
+        except (ElementClickInterceptedException, TimeoutException):
+            logging.error(
+                'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
 
 
 def checkout_paypal(driver, timeout):
