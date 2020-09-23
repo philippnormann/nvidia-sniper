@@ -17,7 +17,7 @@ from selenium.webdriver.firefox.options import Options, FirefoxProfile
 from webdriver_manager.firefox import GeckoDriverManager
 import sniper.checkout as checkout
 
-header = f'''
+HEADER = f'''
 {Fore.GREEN}
 ███╗   ██╗██╗   ██╗██╗██████╗ ██╗ █████╗     
 ████╗  ██║██║   ██║██║██╔══██╗██║██╔══██╗    
@@ -59,16 +59,33 @@ def get_default_profile():
     return mozilla_profile / profile.get('Profile0', 'Path')
 
 
+def send_notifications(target_gpu, notification_type, notifications):
+    driver.save_screenshot('screenshot.png')
+    for name, service in notifications['services'].items():
+        logging.info(f'Sending notifications to {name}')
+        apobj = apprise.Apprise()
+        apobj.add(service['url'])
+        title = f"Alert - {target_gpu['name']} {notification_type}"
+        msg = notifications[notification_type]['message']
+        if service['screenshot']:
+            apobj.notify(title=title, body=msg,
+                         attach='screenshot.png')
+        else:
+            apobj.notify(title=title, body=msg)
+
+
 if __name__ == '__main__':
     colorama.init()
-    print(header)
+    print(HEADER)
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_format)
 
     customer = read_json('customer.json')
-    gpu_data = read_json('gpus.json')
+    locale = customer['locale']
+    notifications = customer['notifications']
 
+    gpu_data = read_json('gpus.json')
     target_gpu, _ = pick(list(gpu_data.keys()),
                          'Which GPU are you targeting?',
                          indicator='=>')
@@ -95,36 +112,47 @@ if __name__ == '__main__':
     driver = webdriver.Firefox(
         firefox_profile=profile, executable_path=GeckoDriverManager().install())
 
-    target_url = gpu_data[target_gpu]['url']
+    target_gpu = gpu_data[target_gpu]
 
     while True:
-        success = checkout.add_to_basket(
-            driver, timeout, customer['locale'], target_url)
-        if success:
-            checkout.to_checkout(driver, timeout, customer['locale'])
+        logging.info(
+            f"Checking {locale} availability for {target_gpu['name']}...")
+        checkout.get_product_page(driver, locale, target_gpu)
+        gpu_available = checkout.check_availability(driver, timeout)
+        if gpu_available:
+            logging.info(f"Found available GPU: {target_gpu['name']}")
+            send_notifications(target_gpu, 'availability', notifications)
+            added_to_basket = False
+            while not added_to_basket:
+                logging.info(f'Trying to add to basket...')
+                added_to_basket = checkout.add_to_basket(driver, timeout)
+                if not added_to_basket:
+                    logging.info(f'Add to basket click failed, trying again!')
+
+            logging.info(f'Add to basket click suceeded!')
+            send_notifications(target_gpu, 'add-to-basket', notifications)
+            logging.info('Going to checkout page...')
+            checkout.to_checkout(driver, timeout, locale)
+
             if payment_method == 'credit-card':
                 checkout.checkout_guest(driver, timeout, customer, auto_submit)
             else:
                 checkout.checkout_paypal(driver, timeout),
 
             logging.info('Checkout successful!')
-            driver.save_screenshot('screenshot.png')
+            send_notifications(target_gpu, 'checkout', notifications)
 
-            for name, service in customer['notification'].items():
-                logging.info(f'Sending notifications to {name}')
-                apobj = apprise.Apprise()
-                apobj.add(service['url'])
-                if service['screenshot']:
-                    apobj.notify(
-                        title=service['title'],
-                        body=service['message'],
-                        attach='screenshot.png'
-                    )
+            if auto_submit:
+                checkout.click_recaptcha(driver, timeout)
+                order_submitted = checkout.submit_order(driver, timeout)
+                if order_submitted:
+                    logging.info('Auto buy successfully submitted!')
+                    send_notifications(target_gpu, 'submit', notifications)
                 else:
-                    apobj.notify(
-                        title=service['title'],
-                        body=service['message'],
-                    )
+                    logging.error(
+                        'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
+                    send_notifications(
+                        target_gpu, 'captcha-fail', notifications)
             break
         else:
             logging.info('GPU currently not available')

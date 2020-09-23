@@ -32,18 +32,31 @@
         },
         "code": "737"
     },
-    "notification": {
-        "apprise-1": {
-            "url": "tgram://bottoken/ChatID",
-            "title": "Nvidia Sniper Alert",
-            "message": "GPU checkout successfull!",
-            "screenshot": true
+    "notifications": {
+        "availability": {
+            "message": "Quick, before it is gone!"
         },
-        "apprise-2": {
-            "url": "pover://user@token",
-            "title": "Nvidia Sniper Alert",
-            "message": "GPU checkout successfull!",
-            "screenshot": false
+        "add-to-basket": {
+            "message": "Locked and loaded!"
+        },
+        "checkout": {
+            "message": "Please do not overdraft."
+        },
+        "submit": {
+            "message": "SNIPED!"
+        },
+        "captcha-fail": {
+            "message": "Failed to captcha that card!"
+        },
+        "services": {
+            "apprise-1": {
+                "url": "tgram://bottoken/ChatID",
+                "screenshot": true
+            },
+            "apprise-2": {
+                "url": "pover://user@token",
+                "screenshot": false
+            }
         }
     }
 }
