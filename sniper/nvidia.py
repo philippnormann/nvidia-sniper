@@ -53,13 +53,14 @@ def add_to_basket(driver, timeout):
 
 
 def to_checkout(driver, timeout, locale):
-    checkout_reached = False
-    while not checkout_reached:
+    while True:
         try:
             driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS).click()
             WebDriverWait(driver, timeout).until(
                 EC.url_contains('store.nvidia.com'))
-            checkout_reached = True
+            return True
+        except NoSuchElementException:
+            return False
         except TimeoutException:
             logging.info(
                 'Timed out waiting for checkout page to load, trying again...')
