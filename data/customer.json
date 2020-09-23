@@ -33,9 +33,9 @@
         "code": "737"
     },
     "notifications": {
-		"started": {
-			"message": "Nvidia Sniper Started!",
-			"enabled": true
+        "started": {
+            "message": "Nvidia Sniper Started! 🕹️",
+            "enabled": true
         },
         "availability": {
             "message": "Quick, before it is gone! 🏃‍♂️",
