@@ -46,7 +46,7 @@
             "enabled": true
         },
         "checkout": {
-            "message": "Checkout complete, submitting order... ✅",
+            "message": "Checkout complete! ✅",
             "enabled": true
         },
         "submit": {
