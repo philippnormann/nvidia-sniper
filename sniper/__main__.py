@@ -70,7 +70,9 @@ if __name__ == '__main__':
     driver = webdriver.create()
     target_gpu = gpu_data[target_gpu]
     
-    notify.send_notifications(target_gpu, 'started', notifications)
+    if notifications['started']['enabled']:
+        notify.send_notifications(
+            target_gpu, 'started', notifications)
 
     while True:
         logging.info(
