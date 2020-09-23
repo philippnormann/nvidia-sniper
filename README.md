@@ -29,7 +29,6 @@ To run the bot, we need the following things:
 - Python 3.8
 - Pipenv
 - Firefox
-- Geckodriver
 
 ### Linux (Ubuntu)
 ```bash
@@ -75,8 +74,8 @@ pipenv run python -m sniper
 ## Configuration
 In the `customer.json` file, some fields require specific values.
 
-### `notification`
-The bot can send multiple apprise notifications, including a screenshot attachment upon successful checkout. See https://github.com/caronc/apprise#supported-notifications for more information. Add additional entries to the `notification` dictionary in the `customer.json` file for multiple providers. For each notification channel, a custom `message` and a `title` can be set. Additionally, the `screenshot` attachment can be toggled per channel.
+### `notifications`
+The bot can send multiple push notifications, including a screenshot attachment along the checkout process. See https://github.com/caronc/apprise#supported-notifications for more information. Add additional entries to the `notifications` dictionary in the `customer.json` file for multiple providers. For each notification, a custom `message` can be set. Additionally, the `screenshot` attachment can be toggled per provider.
 
 A couple of example URLs for different notification services: 
 - `pover://user@token`: Pushover
