@@ -34,19 +34,24 @@
     },
     "notifications": {
         "availability": {
-            "message": "Quick, before it is gone!"
+            "message": "Quick, before it is gone! 🏃‍♂️",
+            "enabled": true
         },
         "add-to-basket": {
-            "message": "Locked and loaded!"
+            "message": "Locked and loaded! 🔫",
+            "enabled": true
         },
         "checkout": {
-            "message": "Please do not overdraft."
+            "message": "Checkout complete, submitting order... ✅",
+            "enabled": true
         },
         "submit": {
-            "message": "SNIPED!"
+            "message": "SNIPED! 🎯",
+            "enabled": true
         },
         "captcha-fail": {
-            "message": "Failed to captcha that card!"
+            "message": "Failed to CAPTCHA that card! 🤖",
+            "enabled": true
         },
         "services": {
             "apprise-1": {

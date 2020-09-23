@@ -140,7 +140,8 @@ if __name__ == '__main__':
         gpu_available = checkout.check_availability(driver, timeout)
         if gpu_available:
             logging.info(f"Found available GPU: {target_gpu['name']}")
-            send_notifications(target_gpu, 'availability', notifications)
+            if notifications['availability']['enabled']:
+                send_notifications(target_gpu, 'availability', notifications)
             added_to_basket = False
             while not added_to_basket:
                 logging.info(f'Trying to add to basket...')
@@ -149,7 +150,8 @@ if __name__ == '__main__':
                     logging.info(f'Add to basket click failed, trying again!')
 
             logging.info(f'Add to basket click suceeded!')
-            send_notifications(target_gpu, 'add-to-basket', notifications)
+            if notifications['add-to-basket']['enabled']:
+                send_notifications(target_gpu, 'add-to-basket', notifications)
             logging.info('Going to checkout page...')
             checkout.to_checkout(driver, timeout, locale)
 
@@ -159,19 +161,22 @@ if __name__ == '__main__':
                 checkout.checkout_paypal(driver, timeout),
 
             logging.info('Checkout successful!')
-            send_notifications(target_gpu, 'checkout', notifications)
+            if notifications['checkout']['enabled']:
+                send_notifications(target_gpu, 'checkout', notifications)
 
             if auto_submit:
                 checkout.click_recaptcha(driver, timeout)
                 order_submitted = checkout.submit_order(driver, timeout)
                 if order_submitted:
                     logging.info('Auto buy successfully submitted!')
-                    send_notifications(target_gpu, 'submit', notifications)
+                    if notifications['submit']['enabled']:
+                        send_notifications(target_gpu, 'submit', notifications)
                 else:
                     logging.error(
                         'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
-                    send_notifications(
-                        target_gpu, 'captcha-fail', notifications)
+                    if notifications['captcha-fail']['enabled']:
+                        send_notifications(
+                            target_gpu, 'captcha-fail', notifications)
             break
         else:
             logging.info('GPU currently not available')
