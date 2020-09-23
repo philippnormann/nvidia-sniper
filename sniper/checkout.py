@@ -4,7 +4,7 @@ import string
 import colorama
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
@@ -16,6 +16,7 @@ CART_ICON_CLASS = 'nav-cart-link'
 CHECKOUT_AS_GUEST_ID = 'btnCheckoutAsGuest'
 SUBMIT_BUTTON_SELECTOR = '#dr_siteButtons > .dr_button'
 PAYPAL_BUTTON_ID = 'lnkPayPalExpressCheckout'
+
 
 def scroll_to(driver, element):
     driver.execute_script(
@@ -71,7 +72,7 @@ def to_checkout(driver, timeout, locale):
                 driver.find_element(By.CLASS_NAME, CART_ICON_CLASS).click()
 
 
-def fill_out_form(driver, customer):
+def fill_out_form(driver, timeout, customer):
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -111,10 +112,17 @@ def fill_out_form(driver, customer):
     if 'shipping' in customer:
         driver.find_element(By.ID, customer['shipping']['speed']).click()
 
-        driver.find_element(By.ID, 'shippingDifferentThanBilling').click()
+        shipping_expanded = False
+        while not shipping_expanded:
+            try:
+                driver.find_element(By.ID, 'shippingName1').send_keys(
+                    customer['shipping']['first-name'])
+                shipping_expanded = True
+            except ElementNotInteractableException:
+                expand_shipping_button = driver.find_element(By.ID, 'shippingDifferentThanBilling')
+                expand_shipping_button.click()
+                scroll_to(driver, expand_shipping_button)
 
-        driver.find_element(By.ID, 'shippingName1').send_keys(
-            customer['shipping']['first-name'])
         driver.find_element(By.ID, 'shippingName2').send_keys(
             customer['shipping']['last-name'])
 
@@ -167,6 +175,9 @@ def skip_address_check(driver):
 
 def click_recaptcha(driver, timeout):
     recaptcha_frame_selector = "iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']"
+    recaptcha_frame = driver.find_element(
+        By.CSS_SELECTOR, recaptcha_frame_selector)
+    scroll_to(driver, recaptcha_frame)
     recaptcha_ready = EC.frame_to_be_available_and_switch_to_it(
         (By.CSS_SELECTOR, recaptcha_frame_selector))
     WebDriverWait(driver, timeout).until(recaptcha_ready)
@@ -175,6 +186,7 @@ def click_recaptcha(driver, timeout):
         (By.XPATH, recaptcha_box_xpath))
     WebDriverWait(driver, timeout).until(checkbox_ready).click()
     driver.switch_to.default_content()
+
 
 def submit_order(driver, timeout):
     try:
@@ -206,7 +218,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
                 'Timed out waiting for checkout button to load, trying again...')
             driver.get('https://store.nvidia.com/store/nvidia/cart')
 
-    fill_out_form(driver, customer)
+    fill_out_form(driver, timeout, customer)
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(By.CSS_SELECTOR, SUBMIT_BUTTON_SELECTOR).click()
 
