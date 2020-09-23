@@ -63,7 +63,7 @@ def get_default_profile():
 def prepare_sniper_profile(default_profile_path):
     sniper_profile_path = default_profile_path.parent / 'sniper.default-release'
 
-    shutil.rmtree(sniper_profile_path)
+    shutil.rmtree(sniper_profile_path, ignore_errors=True)
     shutil.copytree(default_profile_path, sniper_profile_path, symlinks=True)
 
     shutil.rmtree(sniper_profile_path / 'datareporting')
