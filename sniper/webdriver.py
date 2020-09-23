@@ -25,21 +25,7 @@ def get_default_profile():
 
 
 def prepare_sniper_profile(default_profile_path):
-    sniper_profile_path = default_profile_path.parent / 'sniper.default-release'
-
-    shutil.rmtree(sniper_profile_path, ignore_errors=True)
-    shutil.copytree(default_profile_path, sniper_profile_path,
-                    ignore=lambda _, __: ['lock', '.parentlock', 'parent.lock'])
-
-    shutil.rmtree(sniper_profile_path / 'datareporting')
-    shutil.rmtree(sniper_profile_path / 'extensions')
-    shutil.rmtree(sniper_profile_path / 'storage')
-
-    os.remove(sniper_profile_path / 'webappsstore.sqlite')
-    os.remove(sniper_profile_path / 'favicons.sqlite')
-    os.remove(sniper_profile_path / 'places.sqlite')
-
-    profile = FirefoxProfile(sniper_profile_path.resolve())
+    profile = FirefoxProfile(default_profile_path.resolve())
     profile.set_preference('dom.webdriver.enabled', False)
     profile.set_preference('useAutomationExtension', False)
     profile.update_preferences()
