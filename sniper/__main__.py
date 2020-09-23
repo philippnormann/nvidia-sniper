@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 import logging
 import colorama
 import apprise
@@ -59,6 +60,27 @@ def get_default_profile():
     return mozilla_profile / profile.get('Profile0', 'Path')
 
 
+def prepare_sniper_profile(default_profile_path):
+    sniper_profile_path = default_profile_path.parent / 'sniper.default-release'
+
+    shutil.rmtree(sniper_profile_path)
+    shutil.copytree(default_profile_path, sniper_profile_path, symlinks=True)
+
+    shutil.rmtree(sniper_profile_path / 'datareporting')
+    shutil.rmtree(sniper_profile_path / 'extensions')
+    shutil.rmtree(sniper_profile_path / 'storage')
+
+    os.remove(sniper_profile_path / 'webappsstore.sqlite')
+    os.remove(sniper_profile_path / 'favicons.sqlite')
+    os.remove(sniper_profile_path / 'places.sqlite')
+
+    profile = FirefoxProfile(sniper_profile_path.resolve())
+    profile.set_preference('dom.webdriver.enabled', False)
+    profile.set_preference('useAutomationExtension', False)
+    profile.update_preferences()
+    return profile
+
+
 def send_notifications(target_gpu, notification_type, notifications):
     driver.save_screenshot('screenshot.png')
     for name, service in notifications['services'].items():
@@ -103,11 +125,8 @@ if __name__ == '__main__':
                       'Please choose a timout / refresh interval', indicator='=>', default_index=2)
     timeout = int(timeout.replace('seconds', '').strip())
 
-    default_profile = get_default_profile().resolve()
-    profile = FirefoxProfile(default_profile)
-    profile.set_preference('dom.webdriver.enabled', False)
-    profile.set_preference('useAutomationExtension', False)
-    profile.update_preferences()
+    default_profile_path = get_default_profile()
+    profile = prepare_sniper_profile(default_profile_path)
 
     driver = webdriver.Firefox(
         firefox_profile=profile, executable_path=GeckoDriverManager().install())
