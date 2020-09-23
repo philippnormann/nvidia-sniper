@@ -59,7 +59,7 @@ def to_checkout(driver, timeout, locale):
         try:
             cart_btn = driver.find_element(By.CLASS_NAME, CART_ICON_CLASS).click()
             cart_btn.click()
-        except ElementClickInterceptedException:
+        except (ElementClickInterceptedException, ElementNotInteractableException):
             pass
         checkout_clickable = EC.element_to_be_clickable((By.CLASS_NAME, CHECKOUT_BUTTON_CLASS))
         WebDriverWait(driver, timeout).until(checkout_clickable)
