@@ -34,8 +34,8 @@
     },
     "notifications": {
 		"started": {
-        "message": "Nvidia Sniper Started!",
-		"enabled": true
+			"message": "Nvidia Sniper Started!",
+			"enabled": true
         },
         "availability": {
             "message": "Quick, before it is gone! 🏃‍♂️",
