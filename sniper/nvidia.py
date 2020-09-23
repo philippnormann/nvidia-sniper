@@ -17,6 +17,8 @@ CHECKOUT_AS_GUEST_ID = 'btnCheckoutAsGuest'
 SUBMIT_BUTTON_SELECTOR = '#dr_siteButtons > .dr_button'
 PAYPAL_BUTTON_ID = 'lnkPayPalExpressCheckout'
 
+RECAPTCHA_FRAME_SELECTOR = "iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']"
+RECAPTCHA_BOX_XPATH = "//span[@id='recaptcha-anchor']"
 
 def scroll_to(driver, element):
     driver.execute_script(
@@ -56,6 +58,9 @@ def to_checkout(driver, timeout, locale):
     while True:
         try:
             driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS).click()
+            WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, RECAPTCHA_FRAME_SELECTOR)))
+            click_recaptcha(driver, timeout)
             WebDriverWait(driver, timeout).until(
                 EC.url_contains('store.nvidia.com'))
             return True
@@ -120,7 +125,8 @@ def fill_out_form(driver, timeout, customer):
                     customer['shipping']['first-name'])
                 shipping_expanded = True
             except ElementNotInteractableException:
-                expand_shipping_button = driver.find_element(By.ID, 'shippingDifferentThanBilling')
+                expand_shipping_button = driver.find_element(
+                    By.ID, 'shippingDifferentThanBilling')
                 expand_shipping_button.click()
                 scroll_to(driver, expand_shipping_button)
 
@@ -174,17 +180,16 @@ def skip_address_check(driver):
     driver.find_element(By.ID, 'selectionButton').click()
 
 
+
 def click_recaptcha(driver, timeout):
-    recaptcha_frame_selector = "iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']"
     recaptcha_frame = driver.find_element(
-        By.CSS_SELECTOR, recaptcha_frame_selector)
+        By.CSS_SELECTOR, RECAPTCHA_FRAME_SELECTOR)
     scroll_to(driver, recaptcha_frame)
     recaptcha_ready = EC.frame_to_be_available_and_switch_to_it(
-        (By.CSS_SELECTOR, recaptcha_frame_selector))
+        (By.CSS_SELECTOR, RECAPTCHA_FRAME_SELECTOR))
     WebDriverWait(driver, timeout).until(recaptcha_ready)
-    recaptcha_box_xpath = "//span[@id='recaptcha-anchor']"
     checkbox_ready = EC.element_to_be_clickable(
-        (By.XPATH, recaptcha_box_xpath))
+        (By.XPATH, RECAPTCHA_BOX_XPATH))
     WebDriverWait(driver, timeout).until(checkbox_ready).click()
     driver.switch_to.default_content()
 
