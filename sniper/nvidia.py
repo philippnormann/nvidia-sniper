@@ -55,27 +55,36 @@ def add_to_basket(driver, timeout):
 
 
 def to_checkout(driver, timeout, locale):
-    while True:
+    try:
         try:
-            driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS).click()
-            WebDriverWait(driver, timeout).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, RECAPTCHA_FRAME_SELECTOR)))
-            click_recaptcha(driver, timeout)
-            WebDriverWait(driver, timeout).until(
-                EC.url_contains('store.nvidia.com'))
-            return True
-        except NoSuchElementException:
-            return False
-        except TimeoutException:
-            logging.info(
-                'Timed out waiting for checkout page to load, trying again...')
+            cart_btn = driver.find_element(By.CLASS_NAME, CART_ICON_CLASS).click()
+            cart_btn.click()
+        except ElementClickInterceptedException:
+            pass
+        checkout_clickable = EC.element_to_be_clickable((By.CLASS_NAME, CHECKOUT_BUTTON_CLASS))
+        WebDriverWait(driver, timeout).until(checkout_clickable)
+        checkout_btn = driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS)
+        checkout_btn.click()
+        while True:
+            # Click CAPTCHA checkbox once and continue
             try:
-                driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS)
+                logging.error('Clicking pre checkout reCAPTCHA!')
+                click_recaptcha(driver, timeout)
+                break
             except NoSuchElementException:
-                driver.get(f'https://www.nvidia.com/{locale}/shop')
-                WebDriverWait(driver, timeout).until(
-                    EC.element_to_be_clickable((By.CLASS_NAME, CART_ICON_CLASS)))
-                driver.find_element(By.CLASS_NAME, CART_ICON_CLASS).click()
+                pass
+        
+        while True:
+            # Wait until checkout page is reached, in the worst case manual intervention is required
+            try:
+                WebDriverWait(driver, timeout).until(EC.url_contains('store.nvidia.com'))
+                return True
+            except TimeoutException:
+                logging.error('Could not reach checkout page, manual intervention might be required!')
+                pass
+
+    except (TimeoutException, NoSuchElementException):
+        return False
 
 
 def fill_out_form(driver, timeout, customer):
