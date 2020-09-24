@@ -23,8 +23,11 @@ def get_product_page(driver, locale, gpu):
                             for i in range(5))
     anticache_value = random.randint(0, 9999)
     full_url = f"https://www.nvidia.com/{locale}{gpu['url']}?{anticache_key}={anticache_value}"
-    driver.get(full_url)
-
+    try:
+        driver.get(full_url)
+        return True
+    except TimeoutException:
+        return False
 
 def check_availability(driver, timeout):
     try:
