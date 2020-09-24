@@ -65,10 +65,10 @@ def to_checkout(driver, timeout, locale):
         WebDriverWait(driver, timeout).until(checkout_clickable)
         checkout_btn = driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS)
         checkout_btn.click()
+        logging.error('Clicking pre checkout reCAPTCHA!')
         while True:
             # Click CAPTCHA checkbox once and continue
             try:
-                logging.error('Clicking pre checkout reCAPTCHA!')
                 click_recaptcha(driver, timeout)
                 break
             except NoSuchElementException:
