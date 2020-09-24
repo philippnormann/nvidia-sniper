@@ -67,13 +67,11 @@ def to_checkout(driver, timeout, locale, notification_queue):
         checkout_btn.click()
 
         logging.error('Clicking pre checkout reCAPTCHA!')
-        while True:
-            # Click CAPTCHA checkbox once and continue
-            try:
-                click_recaptcha(driver, timeout)
-                break
-            except NoSuchElementException:
-                pass
+        # Click CAPTCHA checkbox once and continue
+        try:
+            click_recaptcha(driver, timeout)
+        except NoSuchElementException:
+            pass
 
         while True:
             # Wait until checkout page is reached, in the worst case manual intervention is required
