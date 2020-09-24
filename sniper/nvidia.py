@@ -10,15 +10,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
-ADD_TO_BASKET_SELECTOR = '.singleSlideBanner .js-add-button'
-CHECKOUT_BUTTON_CLASS = 'cart__checkout-button'
-CART_ICON_CLASS = 'nav-cart-link'
-CHECKOUT_AS_GUEST_ID = 'btnCheckoutAsGuest'
-SUBMIT_BUTTON_SELECTOR = '#dr_siteButtons > .dr_button'
-PAYPAL_BUTTON_ID = 'lnkPayPalExpressCheckout'
+import sniper.constants as const
 
-RECAPTCHA_FRAME_SELECTOR = "iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']"
-RECAPTCHA_BOX_XPATH = "//span[@id='recaptcha-anchor']"
 
 def scroll_to(driver, element):
     driver.execute_script(
@@ -36,7 +29,7 @@ def get_product_page(driver, locale, gpu):
 def check_availability(driver, timeout):
     try:
         add_to_basket_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, ADD_TO_BASKET_SELECTOR))
+            (By.CSS_SELECTOR, const.ADD_TO_BASKET_SELECTOR))
         WebDriverWait(driver, timeout).until(add_to_basket_clickable)
         return True
     except TimeoutException:
@@ -46,7 +39,7 @@ def check_availability(driver, timeout):
 def add_to_basket(driver, timeout):
     try:
         add_to_basket_btn = driver.find_element(
-            By.CSS_SELECTOR, ADD_TO_BASKET_SELECTOR)
+            By.CSS_SELECTOR, const.ADD_TO_BASKET_SELECTOR)
         scroll_to(driver, add_to_basket_btn)
         add_to_basket_btn.click()
         return True
@@ -54,17 +47,22 @@ def add_to_basket(driver, timeout):
         return False
 
 
-def to_checkout(driver, timeout, locale):
+def to_checkout(driver, timeout, locale, notification_queue):
     try:
         try:
-            cart_btn = driver.find_element(By.CLASS_NAME, CART_ICON_CLASS).click()
+            cart_btn = driver.find_element(
+                By.CLASS_NAME, const.CART_ICON_CLASS).click()
             cart_btn.click()
         except (ElementClickInterceptedException, ElementNotInteractableException):
             pass
-        checkout_clickable = EC.element_to_be_clickable((By.CLASS_NAME, CHECKOUT_BUTTON_CLASS))
+
+        checkout_clickable = EC.element_to_be_clickable(
+            (By.CLASS_NAME, const.CHECKOUT_BUTTON_CLASS))
         WebDriverWait(driver, timeout).until(checkout_clickable)
-        checkout_btn = driver.find_element(By.CLASS_NAME, CHECKOUT_BUTTON_CLASS)
+        checkout_btn = driver.find_element(
+            By.CLASS_NAME, const.CHECKOUT_BUTTON_CLASS)
         checkout_btn.click()
+
         logging.error('Clicking pre checkout reCAPTCHA!')
         while True:
             # Click CAPTCHA checkbox once and continue
@@ -73,15 +71,18 @@ def to_checkout(driver, timeout, locale):
                 break
             except NoSuchElementException:
                 pass
-        
+
         while True:
             # Wait until checkout page is reached, in the worst case manual intervention is required
             try:
-                WebDriverWait(driver, timeout).until(EC.url_contains('store.nvidia.com'))
+                WebDriverWait(driver, timeout).until(
+                    EC.url_contains('store.nvidia.com'))
                 return True
             except TimeoutException:
-                logging.error('Could not reach checkout page, manual intervention might be required!')
-                pass
+                logging.error(
+                    'Could not reach checkout page, manual intervention might be required!')
+                driver.save_screenshot(const.SCREENSHOT_FILE)
+                notification_queue.put('captcha-fail')
 
     except (TimeoutException, NoSuchElementException):
         return False
@@ -189,16 +190,15 @@ def skip_address_check(driver):
     driver.find_element(By.ID, 'selectionButton').click()
 
 
-
 def click_recaptcha(driver, timeout):
     recaptcha_frame = driver.find_element(
-        By.CSS_SELECTOR, RECAPTCHA_FRAME_SELECTOR)
+        By.CSS_SELECTOR, const.RECAPTCHA_FRAME_SELECTOR)
     scroll_to(driver, recaptcha_frame)
     recaptcha_ready = EC.frame_to_be_available_and_switch_to_it(
-        (By.CSS_SELECTOR, RECAPTCHA_FRAME_SELECTOR))
+        (By.CSS_SELECTOR, const.RECAPTCHA_FRAME_SELECTOR))
     WebDriverWait(driver, timeout).until(recaptcha_ready)
     checkbox_ready = EC.element_to_be_clickable(
-        (By.XPATH, RECAPTCHA_BOX_XPATH))
+        (By.XPATH, const.RECAPTCHA_BOX_XPATH))
     WebDriverWait(driver, timeout).until(checkbox_ready).click()
     driver.switch_to.default_content()
 
@@ -206,9 +206,10 @@ def click_recaptcha(driver, timeout):
 def submit_order(driver, timeout):
     try:
         submit_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, SUBMIT_BUTTON_SELECTOR))
+            (By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR))
         WebDriverWait(driver, timeout).until(submit_clickable)
-        driver.find_element(By.CSS_SELECTOR, SUBMIT_BUTTON_SELECTOR).click()
+        driver.find_element(
+            By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
         return True
     except (ElementClickInterceptedException, TimeoutException):
         return False
@@ -220,9 +221,9 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     while not proceeded_to_form:
         try:
             WebDriverWait(driver, timeout).until(
-                EC.element_to_be_clickable((By.ID, CHECKOUT_AS_GUEST_ID)))
+                EC.element_to_be_clickable((By.ID, const.CHECKOUT_AS_GUEST_ID)))
             guest_checkout_btn = driver.find_element(
-                By.ID, CHECKOUT_AS_GUEST_ID)
+                By.ID, const.CHECKOUT_AS_GUEST_ID)
             scroll_to(driver, guest_checkout_btn)
             guest_checkout_btn.click()
             WebDriverWait(driver, timeout).until(
@@ -235,7 +236,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
 
     fill_out_form(driver, timeout, customer)
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
-    driver.find_element(By.CSS_SELECTOR, SUBMIT_BUTTON_SELECTOR).click()
+    driver.find_element(By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
 
     try:
         driver.find_element(By.CLASS_NAME, 'dr_error')
@@ -250,8 +251,8 @@ def checkout_paypal(driver, timeout):
     while not proceeded_to_paypal:
         try:
             WebDriverWait(driver, timeout).until(
-                EC.element_to_be_clickable((By.ID, PAYPAL_BUTTON_ID)))
-            driver.find_element(By.ID, PAYPAL_BUTTON_ID).click()
+                EC.element_to_be_clickable((By.ID, const.PAYPAL_BUTTON_ID)))
+            driver.find_element(By.ID, const.PAYPAL_BUTTON_ID).click()
             proceeded_to_paypal = True
         except TimeoutException:
             logging.info(

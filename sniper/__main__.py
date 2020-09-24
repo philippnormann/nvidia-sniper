@@ -5,30 +5,11 @@ import colorama
 
 from pathlib import Path
 from pick import pick
-from colorama import Fore, Style
 
 import sniper.nvidia as nvidia
+import sniper.constants as const
 import sniper.webdriver as webdriver
 import sniper.notifications as notify
-
-HEADER = f'''
-{Fore.GREEN}
-███╗   ██╗██╗   ██╗██╗██████╗ ██╗ █████╗     
-████╗  ██║██║   ██║██║██╔══██╗██║██╔══██╗    
-██╔██╗ ██║██║   ██║██║██║  ██║██║███████║    
-██║╚██╗██║╚██╗ ██╔╝██║██║  ██║██║██╔══██║    
-██║ ╚████║ ╚████╔╝ ██║██████╔╝██║██║  ██║    
-╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═════╝ ╚═╝╚═╝  ╚═╝    
-{Fore.RED}
-███████╗███╗   ██╗██╗██████╗ ███████╗██████╗ 
-██╔════╝████╗  ██║██║██╔══██╗██╔════╝██╔══██╗
-███████╗██╔██╗ ██║██║██████╔╝█████╗  ██████╔╝
-╚════██║██║╚██╗██║██║██╔═══╝ ██╔══╝  ██╔══██╗
-███████║██║ ╚████║██║██║     ███████╗██║  ██║
-╚══════╝╚═╝  ╚═══╝╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
-{Style.RESET_ALL}
-'''
-SCREENSHOT_FILE = 'screenshot.png'
 
 src_path = Path(__file__).parent
 data_path = src_path.parent / 'data'
@@ -41,7 +22,7 @@ def read_json(filename):
 
 if __name__ == '__main__':
     colorama.init()
-    print(HEADER)
+    print(const.HEADER)
 
     driver = webdriver.create()
 
@@ -78,18 +59,22 @@ if __name__ == '__main__':
     notifier.start_worker()
 
     if notification_config['started']['enabled']:
+        nvidia.get_product_page(driver, locale, target_gpu)
+        driver.save_screenshot(const.SCREENSHOT_FILE)
         notification_queue.put('started')
 
     while True:
         logging.info(
             f"Checking {locale} availability for {target_gpu['name']}...")
         nvidia.get_product_page(driver, locale, target_gpu)
+
         gpu_available = nvidia.check_availability(driver, timeout)
         if gpu_available:
             logging.info(f"Found available GPU: {target_gpu['name']}")
             if notification_config['availability']['enabled']:
-                driver.save_screenshot(SCREENSHOT_FILE)
+                driver.save_screenshot(const.SCREENSHOT_FILE)
                 notification_queue.put('availability')
+
             added_to_basket = False
             while not added_to_basket:
                 logging.info(f'Trying to add to basket...')
@@ -99,10 +84,12 @@ if __name__ == '__main__':
 
             logging.info(f'Add to basket click suceeded!')
             if notification_config['add-to-basket']['enabled']:
-                driver.save_screenshot(SCREENSHOT_FILE)
+                driver.save_screenshot(const.SCREENSHOT_FILE)
                 notification_queue.put('add-to-basket')
+
             logging.info('Going to checkout page...')
-            checkout_reached = nvidia.to_checkout(driver, timeout, locale)
+            checkout_reached = nvidia.to_checkout(
+                driver, timeout, locale, notification_queue)
             if checkout_reached:
                 if payment_method == 'credit-card':
                     nvidia.checkout_guest(
@@ -112,7 +99,7 @@ if __name__ == '__main__':
 
                 logging.info('Checkout successful!')
                 if notification_config['checkout']['enabled']:
-                    driver.save_screenshot(SCREENSHOT_FILE)
+                    driver.save_screenshot(const.SCREENSHOT_FILE)
                     notification_queue.put('checkout')
 
                 if auto_submit:
@@ -121,14 +108,20 @@ if __name__ == '__main__':
                     if order_submitted:
                         logging.info('Auto buy successfully submitted!')
                         if notification_config['submit']['enabled']:
-                            driver.save_screenshot(SCREENSHOT_FILE)
+                            driver.save_screenshot(const.SCREENSHOT_FILE)
                             notification_queue.put('submit')
                     else:
                         logging.error(
                             'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
                         if notification_config['captcha-fail']['enabled']:
-                            driver.save_screenshot(SCREENSHOT_FILE)
-                            notification_queue.put('captcha-fail')
+                            driver.save_screenshot(const.SCREENSHOT_FILE)
+                            while not order_submitted:
+                                notification_queue.put('captcha-fail')
+                                order_submitted = nvidia.submit_order(
+                                    driver, timeout)
+                            driver.save_screenshot(const.SCREENSHOT_FILE)
+                            notification_queue.put('submit')
+
                 break
             else:
                 logging.error(
