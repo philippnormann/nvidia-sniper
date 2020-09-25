@@ -67,15 +67,15 @@ async def checkout_api(driver, timeout, locale, dr_locale, api_currency, target_
                     add_to_cart_response = await api.add_to_cart(session, store_token, dr_locale, dr_id)
                     checkout_url = add_to_cart_response['location']
                     logging.info(f'Add to basket click suceeded!')
-                    if notifications['add-to-basket']['enabled']:
-                        driver.save_screenshot(const.SCREENSHOT_FILE)
-                        notification_queue.put('add-to-basket')
                 except Exception:
                     logging.exception(f'Failed to create direct checkout link')
                     return False
                 try:
                     logging.info('Going to checkout page...')
                     driver.get(checkout_url)
+                    if notifications['add-to-basket']['enabled']:
+                        driver.save_screenshot(const.SCREENSHOT_FILE)
+                        notification_queue.put('add-to-basket')
                     return True
                 except TimeoutException:
                     logging.error(
