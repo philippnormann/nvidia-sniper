@@ -33,4 +33,4 @@ RECAPTCHA_BOX_XPATH = "//span[@id='recaptcha-anchor']"
 
 TOKEN_URL = 'https://store.nvidia.com/store/nvidia/SessionToken'
 ADD_TO_CART_URL = 'https://api-prod.nvidia.com/direct-sales-shop/DR/add-to-cart'
-INVENTORY_URL = 'https://api-prod.nvidia.com/direct-sales-shop/DR/products/'
+INVENTORY_URL = 'https://api-prod.nvidia.com/direct-sales-shop/DR/products'
