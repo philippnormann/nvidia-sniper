@@ -27,7 +27,7 @@
     },
     "services": {
         "apprise-1": {
-            "url": "***REMOVED***",
+            "url": "tgram://bottoken/ChatID",
             "screenshot": true
         }
     }
