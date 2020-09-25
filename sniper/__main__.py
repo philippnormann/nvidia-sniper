@@ -1,3 +1,4 @@
+import sys
 import json
 import logging
 import queue
@@ -124,9 +125,26 @@ def checkout_selenium(driver, timeout, locale, target_gpu, notifications, notifi
         return False
 
 
+def read_config():
+    try:
+        notification_config = read_json(config_path / 'notifications.json')
+    except FileNotFoundError:
+        logging.error(
+            'Missing notification configuration file, copy the template to config/notifications.json and customize as described in the README to continue.')
+        sys.exit()
+    try:
+        customer = read_json(config_path / 'customer.json')
+    except FileNotFoundError:
+        logging.error(
+            'Missing customer configuration file, copy the template to config/customers.json and customize as described in the README to continue.')
+    return notification_config, customer
+
+
 async def main():
     colorama.init()
     print(const.HEADER)
+
+    notification_config, customer = read_config()
 
     driver = webdriver.create()
 
@@ -153,14 +171,12 @@ async def main():
 
     target_gpu = gpu_data[target_gpu]
 
-    notification_config = read_json(config_path / 'notifications.json')
     notifications = notification_config['notifications']
     notification_queue = queue.Queue()
     notifier = notify.Notifier(
         notification_config, notification_queue, target_gpu)
     notifier.start_worker()
 
-    customer = read_json(config_path / 'customer.json')
     locale = customer['locale']
     locales = read_json(data_path / 'locales.json')
     dr_locale = locales[locale]['DRlocale']
