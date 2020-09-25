@@ -1,11 +1,17 @@
 import json
 import logging
 import queue
+import asyncio
+import aiohttp
 import colorama
 
 from pathlib import Path
+from time import sleep
 from pick import pick
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
+import sniper.api as api
 import sniper.nvidia as nvidia
 import sniper.constants as const
 import sniper.webdriver as webdriver
@@ -21,7 +27,101 @@ def read_json(filename):
         return json.load(json_file)
 
 
-if __name__ == '__main__':
+async def checkout_api(driver, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
+    logging.info(
+        f"Checking {locale} availability for {target_gpu['name']} using API...")
+    product_loaded = nvidia.get_product_page(driver, locale, target_gpu)
+    if product_loaded:
+        try:
+            item = driver.find_element(
+                By.CSS_SELECTOR, const.PRODUCT_ITEM_SELECTOR)
+            dr_id = item.get_attribute('data-digital-river-id')
+        except NoSuchElementException:
+            logging.info('GPU has not been released yet')
+            return False
+        async with aiohttp.ClientSession() as session:
+            try:
+                inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
+            except Exception:
+                logging.exception(f'Failed to get inventory status for {dr_id}')
+                return False
+            logging.info(f'Inventory status for {dr_id}: {inventory}')
+            if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
+                logging.info(f"Found available GPU: {target_gpu['name']}")
+                if notifications['availability']['enabled']:
+                    driver.save_screenshot(const.SCREENSHOT_FILE)
+                    notification_queue.put('availability')
+                try:
+                    logging.info('Fetching API token...')
+                    store_token = await api.fetch_token(session, dr_locale)
+                    logging.info('API Token: ' + store_token)
+                except Exception:
+                    logging.exception(f'Failed to fetch API token')
+                    return False
+                try:
+                    logging.info('Calling add to cart API...')
+                    add_to_cart_response = await api.add_to_cart(session, store_token, dr_locale, dr_id)
+                    checkout_url = add_to_cart_response['location']
+                    logging.info(f'Add to basket click suceeded!')
+                    if notifications['add-to-basket']['enabled']:
+                        driver.save_screenshot(const.SCREENSHOT_FILE)
+                        notification_queue.put('add-to-basket')
+                except Exception:
+                    logging.exception(f'Failed to create direct checkout link')
+                    return False
+                try:
+                    logging.info('Going to checkout page...')
+                    driver.get(checkout_url)
+                    return True
+                except TimeoutException:
+                    logging.error(
+                        'Lost basket and failed to checkout, trying again...')
+                    return False
+            else:
+                return False
+    else:
+        return False
+
+
+def checkout_selenium(driver, timeout, locale, target_gpu, notifications, notification_queue):
+    logging.info(
+        f"Checking {locale} availability for {target_gpu['name']} using selenium...")
+    product_loaded = nvidia.get_product_page(driver, locale, target_gpu)
+    if product_loaded:
+        gpu_available = nvidia.check_availability(driver, timeout)
+        if gpu_available:
+            logging.info(f"Found available GPU: {target_gpu['name']}")
+            if notifications['availability']['enabled']:
+                driver.save_screenshot(const.SCREENSHOT_FILE)
+                notification_queue.put('availability')
+            added_to_basket = False
+            while not added_to_basket:
+                logging.info(f'Trying to add to basket...')
+                added_to_basket = nvidia.add_to_basket(driver, timeout)
+                if not added_to_basket:
+                    logging.info(
+                        f'Add to basket click failed, trying again!')
+            logging.info(f'Add to basket click suceeded!')
+            if notifications['add-to-basket']['enabled']:
+                driver.save_screenshot(const.SCREENSHOT_FILE)
+                notification_queue.put('add-to-basket')
+            logging.info('Going to checkout page...')
+            checkout_reached = nvidia.to_checkout(
+                driver, timeout, locale, notification_queue)
+            if checkout_reached:
+                return True
+            else:
+                logging.error(
+                    'Lost basket and failed to checkout, trying again...')
+                return False
+        else:
+            logging.info('GPU currently not available')
+        return False
+    else:
+        return False
+
+
+async def main():
     colorama.init()
     print(const.HEADER)
 
@@ -59,6 +159,9 @@ if __name__ == '__main__':
 
     customer = read_json(config_path / 'customer.json')
     locale = customer['locale']
+    locales = read_json(data_path / 'locales.json')
+    dr_locale = locales[locale]['DRlocale']
+    api_currency = locales[locale]['apiCurrency']
 
     if notifications['started']['enabled']:
         nvidia.get_product_page(driver, locale, target_gpu)
@@ -66,70 +169,48 @@ if __name__ == '__main__':
         notification_queue.put('started')
 
     while True:
-        logging.info(
-            f"Checking {locale} availability for {target_gpu['name']}...")
-        product_loaded = nvidia.get_product_page(driver, locale, target_gpu)
-        if product_loaded:
-            gpu_available = nvidia.check_availability(driver, timeout)
-            if gpu_available:
-                logging.info(f"Found available GPU: {target_gpu['name']}")
-                if notifications['availability']['enabled']:
-                    driver.save_screenshot(const.SCREENSHOT_FILE)
-                    notification_queue.put('availability')
+        checkout_reached = await checkout_api(
+            driver, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
 
-                added_to_basket = False
-                while not added_to_basket:
-                    logging.info(f'Trying to add to basket...')
-                    added_to_basket = nvidia.add_to_basket(driver, timeout)
-                    if not added_to_basket:
-                        logging.info(
-                            f'Add to basket click failed, trying again!')
+        if not checkout_reached:
+            sleep(timeout)
+            checkout_reached = checkout_selenium(
+                driver, timeout, locale, target_gpu, notifications, notification_queue)
 
-                logging.info(f'Add to basket click suceeded!')
-                if notifications['add-to-basket']['enabled']:
-                    driver.save_screenshot(const.SCREENSHOT_FILE)
-                    notification_queue.put('add-to-basket')
+        if checkout_reached:
+            if payment_method == 'credit-card':
+                nvidia.checkout_guest(
+                    driver, timeout, customer, auto_submit)
+            else:
+                nvidia.checkout_paypal(driver, timeout),
 
-                logging.info('Going to checkout page...')
-                checkout_reached = nvidia.to_checkout(
-                    driver, timeout, locale, notification_queue)
-                if checkout_reached:
-                    if payment_method == 'credit-card':
-                        nvidia.checkout_guest(
-                            driver, timeout, customer, auto_submit)
-                    else:
-                        nvidia.checkout_paypal(driver, timeout),
+            logging.info('Checkout successful!')
+            if notifications['checkout']['enabled']:
+                driver.save_screenshot(const.SCREENSHOT_FILE)
+                notification_queue.put('checkout')
 
-                    logging.info('Checkout successful!')
-                    if notifications['checkout']['enabled']:
+            if auto_submit:
+                nvidia.click_recaptcha(driver, timeout)
+                order_submitted = nvidia.submit_order(driver, timeout)
+                if order_submitted:
+                    logging.info('Auto buy successfully submitted!')
+                    if notifications['submit']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
-                        notification_queue.put('checkout')
-
-                    if auto_submit:
-                        nvidia.click_recaptcha(driver, timeout)
-                        order_submitted = nvidia.submit_order(driver, timeout)
-                        if order_submitted:
-                            logging.info('Auto buy successfully submitted!')
-                            if notifications['submit']['enabled']:
-                                driver.save_screenshot(const.SCREENSHOT_FILE)
-                                notification_queue.put('submit')
-                        else:
-                            logging.error(
-                                'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
-                            if notifications['captcha-fail']['enabled']:
-                                driver.save_screenshot(const.SCREENSHOT_FILE)
-                                while not order_submitted:
-                                    notification_queue.put('captcha-fail')
-                                    order_submitted = nvidia.submit_order(
-                                        driver, timeout)
-                                driver.save_screenshot(const.SCREENSHOT_FILE)
-                                notification_queue.put('submit')
-
-                    break
+                        notification_queue.put('submit')
                 else:
                     logging.error(
-                        'Lost basket and failed to checkout, trying again...')
-            else:
-                logging.info('GPU currently not available')
-
+                        'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
+                    if notifications['captcha-fail']['enabled']:
+                        driver.save_screenshot(const.SCREENSHOT_FILE)
+                        while not order_submitted:
+                            notification_queue.put('captcha-fail')
+                            order_submitted = nvidia.submit_order(
+                                driver, timeout)
+                        driver.save_screenshot(const.SCREENSHOT_FILE)
+                        notification_queue.put('submit')
+            break
     notification_queue.join()
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

@@ -1,0 +1,102 @@
+{
+    "en-zz": {
+        "DRlocale": "en_us",
+        "apiCurrency": "USD",
+        "region": "us"
+    },
+    "en-ca": {
+        "DRlocale": "en_us",
+        "apiCurrency": "USD",
+        "region": "us"
+    },
+    "en-us": {
+        "DRlocale": "en_us",
+        "apiCurrency": "USD",
+        "region": "us"
+    },
+    "fr-fr": {
+        "DRlocale": "fr_fr",
+        "apiCurrency": "EUR",
+        "region": "fr"
+    },
+    "de-de": {
+        "DRlocale": "de_de",
+        "apiCurrency": "EUR",
+        "region": "de"
+    },
+    "en-gb": {
+        "DRlocale": "en_gb",
+        "apiCurrency": "GBP",
+        "region": "gb"
+    },
+    "es-es": {
+        "DRlocale": "es_es",
+        "apiCurrency": "EUR",
+        "region": "es"
+    },
+    "it-it": {
+        "DRlocale": "it_it",
+        "apiCurrency": "EUR",
+        "region": "it"
+    },
+    "pl-pl": {
+        "DRlocale": "pl_pl",
+        "apiCurrency": "PLN",
+        "region": "pl"
+    },
+    "nb-no": {
+        "DRlocale": "no_no",
+        "apiCurrency": "NOK",
+        "region": "no"
+    },
+    "sv-se": {
+        "DRlocale": "sv_se",
+        "apiCurrency": "SEK",
+        "region": "se"
+    },
+    "da-dk": {
+        "DRlocale": "en_gb",
+        "apiCurrency": "DKK",
+        "region": "dk"
+    },
+    "fr-be": {
+        "DRlocale": "fr_fr",
+        "apiCurrency": "EUR",
+        "region": "be"
+    },
+    "de-at": {
+        "DRlocale": "de_de",
+        "apiCurrency": "EUR",
+        "region": "at"
+    },
+    "cs-cz": {
+        "DRlocale": "en_gb",
+        "apiCurrency": "CZK",
+        "region": "cz"
+    },
+    "fi-fi": {
+        "DRlocale": "en_gb",
+        "apiCurrency": "EUR",
+        "region": "fi"
+    },
+    "nl-nl": {
+        "DRlocale": "nl_nl",
+        "apiCurrency": "EUR",
+        "region": "nl"
+    },
+    "ru-ru": {
+        "DRlocale": "ru_ru",
+        "apiCurrency": "RUB",
+        "region": "ru"
+    },
+    "en-in": {
+        "DRlocale": "en_in",
+        "apiCurrency": "INR",
+        "region": "in"
+    },
+    "pt-pt": {
+        "DRlocale": "en_gb",
+        "apiCurrency": "EUR",
+        "region": "pt"
+    }
+}

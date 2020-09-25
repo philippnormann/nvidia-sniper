@@ -14,6 +14,7 @@ colorama = "*"
 selenium = "*"
 webdriver-manager = "*"
 apprise = "*"
+aiohttp = "*"
 
 [requires]
 python_version = "3.8"
