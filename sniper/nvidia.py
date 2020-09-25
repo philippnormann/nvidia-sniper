@@ -56,7 +56,8 @@ def to_checkout(driver, timeout, locale, notification_queue):
         try:
             cart_btn = driver.find_element(
                 By.CLASS_NAME, const.CART_ICON_CLASS).click()
-            cart_btn.click()
+            if cart_btn is not None:
+                cart_btn.click()
         except (ElementClickInterceptedException, ElementNotInteractableException):
             pass
 
