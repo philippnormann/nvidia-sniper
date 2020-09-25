@@ -1,0 +1,34 @@
+{
+    "notifications": {
+        "started": {
+            "message": "Nvidia Sniper Started! 🕹️",
+            "enabled": true
+        },
+        "availability": {
+            "message": "Quick, before it is gone! 🏃‍♂️",
+            "enabled": true
+        },
+        "add-to-basket": {
+            "message": "Locked and loaded! 🔫",
+            "enabled": true
+        },
+        "checkout": {
+            "message": "Checkout complete! ✅",
+            "enabled": true
+        },
+        "submit": {
+            "message": "SNIPED! 🎯",
+            "enabled": true
+        },
+        "captcha-fail": {
+            "message": "Failed to CAPTCHA that card! 🤖",
+            "enabled": true
+        }
+    },
+    "services": {
+        "apprise-1": {
+            "url": "***REMOVED***",
+            "screenshot": true
+        }
+    }
+}

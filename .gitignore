@@ -1,3 +1,5 @@
 geckodriver.*
 .vscode
 screenshot.png
+config/customer.json
+config/notifications.json

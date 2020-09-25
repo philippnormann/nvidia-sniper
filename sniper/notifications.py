@@ -8,6 +8,7 @@ import asyncio
 class Notifier():
     def __init__(self, notification_config, notification_queue, target_gpu):
         self.config = notification_config
+        self.notifications = notification_config['notifications']
         self.queue = notification_queue
         self.gpu = target_gpu
         if sys.platform == 'win32' and sys.version_info >= (3, 8, 0):
@@ -20,7 +21,7 @@ class Notifier():
             apobj = apprise.Apprise()
             apobj.add(service['url'])
             title = f"{notification_type.replace('-',' ').title()} - {self.gpu['name']}"
-            msg = self.config[notification_type]['message']
+            msg = self.notifications[notification_type]['message']
             if service['screenshot']:
                 apobj.notify(title=title, body=msg,
                              attach='screenshot.png')
