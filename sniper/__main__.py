@@ -132,11 +132,21 @@ def read_config():
         logging.error(
             'Missing notification configuration file, copy the template to config/notifications.json and customize as described in the README to continue.')
         sys.exit()
+    except json.decoder.JSONDecodeError:
+        logging.error(
+            'Error while parsing the notification configuration file, check config/notifications.json for syntax errors and fix them to continue.')
+        sys.exit()
+
     try:
         customer = read_json(config_path / 'customer.json')
     except FileNotFoundError:
         logging.error(
             'Missing customer configuration file, copy the template to config/customers.json and customize as described in the README to continue.')
+        sys.exit()
+    except json.decoder.JSONDecodeError:
+        logging.error(
+            'Error while parsing the customer configuration file, check config/customer.json for syntax errors and fix them to continue.')
+        sys.exit()
     return notification_config, customer
 
 
