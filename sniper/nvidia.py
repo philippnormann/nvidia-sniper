@@ -4,7 +4,7 @@ import string
 import colorama
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
@@ -26,8 +26,9 @@ def get_product_page(driver, locale, gpu):
     try:
         driver.get(full_url)
         return True
-    except TimeoutException:
+    except (TimeoutException, WebDriverException):
         return False
+
 
 def check_availability(driver, timeout):
     try:
