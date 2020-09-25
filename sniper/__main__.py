@@ -12,7 +12,7 @@ from pick import pick
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 
 import sniper.api as api
 import sniper.nvidia as nvidia
@@ -77,7 +77,7 @@ async def checkout_api(driver, timeout, locale, dr_locale, api_currency, target_
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('add-to-basket')
                     return True
-                except TimeoutException:
+                except (TimeoutException, WebDriverException):
                     logging.error(
                         'Lost basket and failed to checkout, trying again...')
                     return False
