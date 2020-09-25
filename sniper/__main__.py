@@ -9,6 +9,8 @@ from pathlib import Path
 from time import sleep
 from pick import pick
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 import sniper.api as api
@@ -43,7 +45,8 @@ async def checkout_api(driver, timeout, locale, dr_locale, api_currency, target_
             try:
                 inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
             except Exception:
-                logging.exception(f'Failed to get inventory status for {dr_id}')
+                logging.exception(
+                    f'Failed to get inventory status for {dr_id}')
                 return False
             logging.info(f'Inventory status for {dr_id}: {inventory}')
             if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
@@ -165,6 +168,8 @@ async def main():
 
     if notifications['started']['enabled']:
         nvidia.get_product_page(driver, locale, target_gpu)
+        WebDriverWait(driver, timeout).until(EC.presence_of_element_located(
+            (By.CLASS_NAME, const.BANNER_CLASS)))
         driver.save_screenshot(const.SCREENSHOT_FILE)
         notification_queue.put('started')
 
