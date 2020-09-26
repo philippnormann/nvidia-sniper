@@ -58,8 +58,9 @@ pipenv install
     - `pipenv install`
 6. Install curses for Windows using 
     - `pipenv install windows-curses`
+
 <details>
-  <summary>If step 5 throws an error saying `pipenv` is not recognized</summary>
+  <summary>If step 5. throws an error saying pipenv is not recognized</summary>
   
   1. From the project directory root, setup a virtual environment using
       - `python -m venv .venv`
