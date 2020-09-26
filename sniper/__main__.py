@@ -176,8 +176,8 @@ async def main():
                           indicator='=>',  default_index=1)
     auto_submit = auto_submit == 'Yes'
 
-    timeout, _ = pick([' 2 seconds', ' 4 seconds', ' 8 seconds', '16 seconds', '32 seconds'],
-                      'Please choose a timout / refresh interval', indicator='=>', default_index=2)
+    timeout, _ = pick([' 4 seconds', ' 8 seconds', '16 seconds', '32 seconds', '64 seconds'],
+                      'Please choose a timout / refresh interval', indicator='=>', default_index=1)
     timeout = int(timeout.replace('seconds', '').strip())
 
     target_gpu = gpu_data[target_gpu]
