@@ -140,8 +140,11 @@ def fill_out_form(driver, timeout, customer):
             except ElementNotInteractableException:
                 expand_shipping_button = driver.find_element(
                     By.ID, 'shippingDifferentThanBilling')
-                expand_shipping_button.click()
                 scroll_to(driver, expand_shipping_button)
+                expand_shipping_button.click()
+                shipping_visible = EC.visibility_of_element_located(
+                    (By.ID, 'shippingName1'))
+                WebDriverWait(driver, timeout).until(shipping_visible)
 
         driver.find_element(By.ID, 'shippingName2').send_keys(
             customer['shipping']['last-name'])
