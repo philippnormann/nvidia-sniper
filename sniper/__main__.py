@@ -30,7 +30,7 @@ def read_json(filename):
         return json.load(json_file)
 
 
-async def checkout_api(driver, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
+async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
     logging.info(
         f"Checking {locale} availability for {target_gpu['name']} using API...")
     product_loaded = nvidia.get_product_page(driver, locale, target_gpu)
@@ -42,7 +42,7 @@ async def checkout_api(driver, timeout, locale, dr_locale, api_currency, target_
         except NoSuchElementException:
             logging.info('GPU has not been released yet')
             return False
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers={'User-Agent': user_agent}) as session:
             try:
                 inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
             except Exception:
@@ -157,6 +157,7 @@ async def main():
     notification_config, customer = read_config()
 
     driver = webdriver.create()
+    user_agent = driver.execute_script('return navigator.userAgent;')
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_format)
@@ -201,7 +202,7 @@ async def main():
 
     while True:
         checkout_reached = await checkout_api(
-            driver, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
+            driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
 
         if not checkout_reached:
             sleep(timeout)
