@@ -58,6 +58,20 @@ pipenv install
     - `pipenv install`
 6. Install curses for Windows using 
     - `pipenv install windows-curses`
+<details>
+  <summary>If step 5 throws an error saying `pipenv` is not recognized</summary>
+  
+  1. From the project directory root, setup a virtual environment using
+      - `python -m venv .venv`
+  2. Activate the virtual environment using
+      - `.venv/Scripts/activate`
+  3. Install `pipenv` again using
+      - `pip install pipenv`
+  4. Install project dependencies using
+      - `pipenv install`
+  5. Install curses for Windows using
+      - `pipenv install windows-curses`
+</details>
 
 ## Updating
 To update `nvidia-sniper` use, `git pull` or download a fresh `.zip` archive from GitHub.
