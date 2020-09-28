@@ -28,6 +28,8 @@ def prepare_sniper_profile(default_profile_path):
     profile = FirefoxProfile(default_profile_path.resolve())
     profile.set_preference('dom.webdriver.enabled', False)
     profile.set_preference('useAutomationExtension', False)
+    if os.path.isfile('./recaptcha_solver-5.7-fx.xpi') :
+        profile.add_extension('recaptcha_solver-5.7-fx.xpi')
     profile.update_preferences()
     return profile
 
