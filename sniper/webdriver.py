@@ -18,7 +18,7 @@ def get_default_profile():
     elif platform == 'win32':
         mozilla_profile = Path(os.getenv('APPDATA')) / 'Mozilla' / 'Firefox'
     if not mozilla_profile.exists():
-        raise Exception("Mozilla profile doesn't exist and/or can't be located on this machine.")
+        raise FileNotFoundError("Mozilla profile doesn't exist and/or can't be located on this machine.")
 
     mozilla_profile_ini = mozilla_profile / 'profiles.ini'
     profile = configparser.ConfigParser()
