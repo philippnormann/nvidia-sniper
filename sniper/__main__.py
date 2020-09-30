@@ -42,7 +42,7 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
         except NoSuchElementException:
             logging.info('GPU has not been released yet')
             return False
-        async with aiohttp.ClientSession(headers={'User-Agent': user_agent}) as session:
+        async with aiohttp.ClientSession(headers={'User-Agent': user_agent}, cookie_jar=aiohttp.CookieJar()) as session:
             try:
                 inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
             except Exception:
@@ -59,20 +59,25 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
                     logging.info('Fetching API token...')
                     store_token = await api.fetch_token(session, dr_locale)
                     logging.info('API Token: ' + store_token)
+                    logging.info('Overiding store cookies for driver...')
+                    driver.get(const.STORE_URL)
+                    for key, morsel in session.cookie_jar.filter_cookies(const.STORE_URL).items():
+                        driver.add_cookie(
+                            {'name': key, 'value': morsel.value, 'domain': const.STORE_HOST})
                 except Exception:
                     logging.exception(f'Failed to fetch API token')
                     return False
                 try:
                     logging.info('Calling add to cart API...')
                     add_to_cart_response = await api.add_to_cart(session, store_token, dr_locale, dr_id)
-                    checkout_url = add_to_cart_response['location']
-                    logging.info(f'Add to basket click suceeded!')
+                    response = add_to_cart_response['message']
+                    logging.info(f'Add to basket response: {response}')
                 except Exception:
-                    logging.exception(f'Failed to create direct checkout link')
+                    logging.exception(f'Failed to add item to basket')
                     return False
                 try:
                     logging.info('Going to checkout page...')
-                    driver.get(checkout_url)
+                    driver.get(const.CHECKOUT_URL)
                     if notifications['add-to-basket']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('add-to-basket')

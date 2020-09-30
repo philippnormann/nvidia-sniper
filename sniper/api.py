@@ -11,7 +11,7 @@ async def add_to_cart(session, store_token, dr_locale, dr_id):
     async with session.post(const.ADD_TO_CART_URL,
                             headers={'nvidia_shop_id': store_token},
                             json={"products": [{"productId": dr_id, "quantity": 1}]}) as response:
-        if response.status == 203:
+        if response.status == 200:
             return await response.json()
         else:
             raise(SystemError(await response.text()))

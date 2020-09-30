@@ -31,6 +31,12 @@ PAYPAL_BUTTON_ID = 'lnkPayPalExpressCheckout'
 RECAPTCHA_FRAME_SELECTOR = "iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']"
 RECAPTCHA_BOX_XPATH = "//span[@id='recaptcha-anchor']"
 
-TOKEN_URL = 'https://store.nvidia.com/store/nvidia/SessionToken'
-ADD_TO_CART_URL = 'https://api-prod.nvidia.com/direct-sales-shop/DR/add-to-cart'
-INVENTORY_URL = 'https://api-prod.nvidia.com/direct-sales-shop/DR/products'
+STORE_HOST = 'store.nvidia.com'
+STORE_URL = f'https://{STORE_HOST}/store'
+
+TOKEN_URL = f'{STORE_URL}/nvidia/SessionToken'
+CHECKOUT_URL = f'{STORE_URL}?Action=DisplayHGOP2LandingPage&SiteID=nvidia'
+
+API_HOST = 'api-prod.nvidia.com'
+INVENTORY_URL = f'https://{API_HOST}/direct-sales-shop/DR/products'
+ADD_TO_CART_URL = f'https://{API_HOST}/direct-sales-shop/DR/add-to-cart'
