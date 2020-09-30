@@ -18,11 +18,14 @@ def scroll_to(driver, element):
         'arguments[0].scrollIntoView({block: "center"})', element)
 
 
-def get_product_page(driver, locale, gpu):
+def get_product_page(driver, locale, gpu, anticache=False):
     anticache_key = ''.join(random.choice(string.ascii_lowercase)
                             for i in range(5))
     anticache_value = random.randint(0, 9999)
-    full_url = f"https://www.nvidia.com/{locale}{gpu['url']}?{anticache_key}={anticache_value}"
+    anticache_query = f'?{anticache_key}={anticache_value}'
+    full_url = f"https://www.nvidia.com/{locale}{gpu['url']}"
+    if anticache:
+        full_url += anticache_query
     try:
         driver.get(full_url)
         return True
@@ -62,13 +65,13 @@ def to_checkout(driver, timeout, locale, notification_queue):
             pass
 
         checkout_clickable = EC.element_to_be_clickable(
-            (By.CLASS_NAME, const.CHECKOUT_BUTTON_CLASS))
+            (By.CSS_SELECTOR, const.CHECKOUT_BUTTON_SELECTOR))
         WebDriverWait(driver, timeout).until(checkout_clickable)
         checkout_btn = driver.find_element(
-            By.CLASS_NAME, const.CHECKOUT_BUTTON_CLASS)
+            By.CSS_SELECTOR, const.CHECKOUT_BUTTON_SELECTOR)
         checkout_btn.click()
 
-        logging.error('Clicking pre checkout reCAPTCHA!')
+        logging.error('Trying to click pre checkout reCAPTCHA!')
         # Click CAPTCHA checkbox once and continue
         try:
             click_recaptcha(driver, timeout)
@@ -79,7 +82,7 @@ def to_checkout(driver, timeout, locale, notification_queue):
             # Wait until checkout page is reached, in the worst case manual intervention is required
             try:
                 WebDriverWait(driver, timeout).until(
-                    EC.url_contains('store.nvidia.com'))
+                    EC.url_contains(const.STORE_HOST))
                 return True
             except TimeoutException:
                 logging.error(

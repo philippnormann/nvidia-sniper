@@ -33,7 +33,8 @@ def read_json(filename):
 async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
     logging.info(
         f"Checking {locale} availability for {target_gpu['name']} using API...")
-    product_loaded = nvidia.get_product_page(driver, locale, target_gpu)
+    product_loaded = nvidia.get_product_page(
+        driver, locale, target_gpu, anticache=True)
     if product_loaded:
         try:
             item = driver.find_element(
