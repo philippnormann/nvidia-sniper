@@ -41,7 +41,7 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
                 By.CSS_SELECTOR, const.PRODUCT_ITEM_SELECTOR)
             dr_id = item.get_attribute('data-digital-river-id')
         except NoSuchElementException:
-            logging.info('GPU has not been released yet')
+            logging.info('Failed to locate Digital River ID on product page')
             return False
         async with aiohttp.ClientSession(headers={'User-Agent': user_agent}, cookie_jar=aiohttp.CookieJar()) as session:
             try:
