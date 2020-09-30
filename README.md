@@ -7,7 +7,7 @@ This bot helps us buy Nvidia Founders Edition GPUs as soon as they become availa
 - Continuously monitor the availability of target GPU on www.nvidia.com
 - Automatically checkout item using PayPal or as guest (credit card)
 - Automatically submit the order for credit card payment 
-- Support for multiple locales (as defined in `data/customer.json`)
+- Support for multiple locales (as defined in `config/customer.json`)
 - Support for multiple GPUs (as defined in `data/gpus.json`)
 
 <img src="screencast.gif" alt="screencast" width="640"/>
@@ -80,7 +80,7 @@ To update `nvidia-sniper` use, `git pull` or download a fresh `.zip` archive fro
 Make sure to back up the `customer.json` in advance as it might get replaced in the process.
 ## Usage
 
-To use the bot, fill out `data/customer.json` and run the script.
+To use the bot, fill out `config/customer.json` and run the script.
 
 ```bash
 cd nvidia-sniper
