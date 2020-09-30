@@ -1,4 +1,4 @@
-# nvidia-sniper [![discord](https://img.shields.io/discord/756303724095471617.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/rks69fD)
+# nvidia-sniper [![discord](https://img.shields.io/discord/756303724095471617.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/rks69fD) [![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/PhilippNormann)
 
 This bot helps us buy Nvidia Founders Edition GPUs as soon as they become available.
 
