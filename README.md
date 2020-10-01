@@ -242,14 +242,14 @@ For `en-us` locale, the `state` field can have the following values:
 To enable CAPTCHA support, follow these steps.
 
 1. Ensure you're using the latest code, ex. `git pull`. If using Git via the command line isn't your thing, you may just want to download this repo again.
-1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-3.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. We want to download the *.xpi file. Try using the link in a browser other than Firefox.
+1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. We want to download the *.xpi file. Try using the link in a browser other than Firefox.
 1. Put the *.xpi file inside the root of the `nvidia-sniper` directory.
 
     <center>
     <img src="images/folder.png" alt="folder" />
     </center>
 
-1. Create an account using one of ReCaptcha Solver's supported APIs, ex. [2captcha](https://2captcha.com). Deposit money into your account. A few :dollar: should be enough.
+1. Create an account using one of ReCaptcha Solver's supported APIs, ex. [2captcha](http://2captcha.com/?from=10326385). Deposit money into your account. A few :dollar: should be enough.
 1. Start the bot as per the instructions in the [Usage](#Usage) section. After you go through the bot's selection process, you should see the ReCaptcha Solver extension in the browser.
 1. Copy your API key from the provider of your choice. Add this key to the extension. Also, enable the checkboxes as shown below.
 
