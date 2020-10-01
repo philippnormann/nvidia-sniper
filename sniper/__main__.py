@@ -167,7 +167,14 @@ async def main():
     user_agent = driver.execute_script('return navigator.userAgent;')
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_format)
+    fh = logging.FileHandler('sniper.log')
+    sh = logging.StreamHandler(sys.stdout)
+    logging.basicConfig(level=logging.INFO,
+                        format=log_format, handlers=[fh, sh])
+
+    logging.info('|---------------------------|')
+    logging.info('| Starting Nvidia Sniper 🎯 |')
+    logging.info('|---------------------------|')
 
     gpu_data = read_json(data_path / 'gpus.json')
     target_gpu, _ = pick(list(gpu_data.keys()),

@@ -3,3 +3,4 @@ geckodriver.*
 screenshot.png
 config/customer.json
 config/notifications.json
+sniper.log
