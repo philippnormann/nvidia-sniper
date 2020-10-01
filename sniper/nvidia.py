@@ -184,7 +184,7 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['card'])
 
     month_select = Select(driver.find_element_by_id('expirationDateMonth'))
-    month_select.select_by_value(customer['credit']['expiration']['month'])
+    month_select.select_by_value(customer['credit']['expiration']['month'].lstrip('0'))
 
     year_select = Select(driver.find_element_by_id('expirationDateYear'))
     year_select.select_by_value(customer['credit']['expiration']['year'])
