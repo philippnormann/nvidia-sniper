@@ -78,8 +78,9 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
                     logging.exception(f'Failed to add item to basket')
                     return False
                 try:
-                    logging.info('Going to checkout page...')
-                    driver.get(const.CHECKOUT_URL)
+                    while const.CHECKOUT_MATCH not in driver.current_url
+                        logging.info(f'Navigating to checkout page {const.CHECKOUT_URL}. Current page {driver.current_url}')
+                        driver.get(const.CHECKOUT_URL)
                     if notifications['add-to-basket']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('add-to-basket')

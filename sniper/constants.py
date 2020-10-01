@@ -40,3 +40,5 @@ CHECKOUT_URL = f'{STORE_URL}?Action=DisplayHGOP2LandingPage&SiteID=nvidia'
 API_HOST = 'api-prod.nvidia.com'
 INVENTORY_URL = f'https://{API_HOST}/direct-sales-shop/DR/products'
 ADD_TO_CART_URL = f'https://{API_HOST}/direct-sales-shop/DR/add-to-cart'
+
+CHECKOUT_MATCH = 'id=QuickBuyCartPage'
