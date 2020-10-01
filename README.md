@@ -2,6 +2,18 @@
 
 This bot helps us buy Nvidia Founders Edition GPUs as soon as they become available.
 
+## Features
+
+- Continuously monitor the availability of target GPU on www.nvidia.com
+- Automatically checkout item using PayPal or as guest (credit card)
+- Automatically submit the order for credit card payment
+- Support for multiple locales (as defined in `config/customer.json`)
+- Support for multiple GPUs (as defined in `data/gpus.json`)
+
+<center>
+<img src="images/screencast.gif" alt="screencast" width="640"/>
+</center>
+
 ## Contents
 
 * [Features](#Features)
@@ -14,18 +26,6 @@ This bot helps us buy Nvidia Founders Edition GPUs as soon as they become availa
 * [Usage](#Usage)
 * [Configuration](#Configuration)
   * [CAPTCHA](#CAPTCHA)
-
-## Features
-
-- Continuously monitor the availability of target GPU on www.nvidia.com
-- Automatically checkout item using PayPal or as guest (credit card)
-- Automatically submit the order for credit card payment
-- Support for multiple locales (as defined in `config/customer.json`)
-- Support for multiple GPUs (as defined in `data/gpus.json`)
-
-<center>
-<img src="images/screencast.gif" alt="screencast" width="640"/>
-</center>
 
 ## Supported GPUs
 
@@ -119,7 +119,7 @@ In the `customer.json` file you can configure your locale and the field contents
 The `locale` field can have the following values:
 - `de-at`: Austria
 - `fr-fr`: Belgium
-- `en-us`: Canada
+- `en-ca`: Canada
 - `cs-cz`: Czech Republic
 - `da-dk`: Denmark
 - `fi-fi`: Finland
