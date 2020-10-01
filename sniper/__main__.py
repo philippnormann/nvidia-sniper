@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import logging
@@ -205,6 +206,13 @@ async def main():
             (By.CLASS_NAME, const.BANNER_CLASS)))
         driver.save_screenshot(const.SCREENSHOT_FILE)
         notification_queue.put('started')
+
+    if os.path.isfile('./recaptcha_solver-5.7-fx.xpi') : # Check if user is using recaptcha extension
+        logging.info('ReCaptcha solver detected, enabled')
+        extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi") # Must be the full path to an XPI file!
+        driver.install_addon(extension_path, temporary=True)
+    else:
+        logging.info('ReCaptcha solver not found')
 
     while True:
         checkout_reached = await checkout_api(
