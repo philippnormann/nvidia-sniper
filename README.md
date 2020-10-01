@@ -2,15 +2,30 @@
 
 This bot helps us buy Nvidia Founders Edition GPUs as soon as they become available.
 
+## Contents
+
+* [Features](#Features)
+* [Supported GPUs](#Supported-GPUs)
+* [Installation](#Installation)
+  * [Linux (Ubuntu)](#Linux-(Ubuntu))
+  * [Mac](#Mac)
+  * [Windows](#Windows)
+* [Updating](#Updating)
+* [Usage](#Usage)
+* [Configuration](#Configuration)
+  * [CAPTCHA](#CAPTCHA)
+
 ## Features
 
 - Continuously monitor the availability of target GPU on www.nvidia.com
 - Automatically checkout item using PayPal or as guest (credit card)
-- Automatically submit the order for credit card payment 
+- Automatically submit the order for credit card payment
 - Support for multiple locales (as defined in `config/customer.json`)
 - Support for multiple GPUs (as defined in `data/gpus.json`)
 
-<img src="screencast.gif" alt="screencast" width="640"/>
+<center>
+<img src="images/screencast.gif" alt="screencast" width="640"/>
+</center>
 
 ## Supported GPUs
 
@@ -40,28 +55,28 @@ pipenv install
 ### Mac
 1. Install the latest version of [Firefox](https://www.firefox.com/)
 2. Install [brew](https://brew.sh/index_de) package manager
-3. Install Pipenv using 
+3. Install Pipenv using
     - `brew install pipenv`
-4. Navigate to project directory using 
-    - `cd nvidia-sniper` 
-5. Install project dependencies using 
+4. Navigate to project directory using
+    - `cd nvidia-sniper`
+5. Install project dependencies using
     - `pipenv install`
 
 ### Windows
 1. Install [Python](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html) for Windows
 2. Install the latest version of [Firefox](https://www.firefox.com/)
-3. Open PowerShell and install Pipenv using 
+3. Open PowerShell and install Pipenv using
     - `pip install pipenv`
-4. Navigate to project directory using 
-    - `cd nvidia-sniper` 
-5. Install project dependencies using 
+4. Navigate to project directory using
+    - `cd nvidia-sniper`
+5. Install project dependencies using
     - `pipenv install`
-6. Install curses for Windows using 
+6. Install curses for Windows using
     - `pipenv install windows-curses`
 
 <details>
   <summary>If step 5. throws an error saying pipenv is not recognized</summary>
-  
+
   1. From the project directory root, setup a virtual environment using
       - `python -m venv .venv`
   2. Activate the virtual environment using
@@ -92,11 +107,11 @@ In the `config` folder a `customer.json` file and `notifications.json` file are 
 ### `notifications.json`
 The bot can send multiple push notifications, including a screenshot attachment along the checkout process. See https://github.com/caronc/apprise#supported-notifications for more information. Add additional entries to the `services` dictionary in the `notifications.json` file for multiple providers. For each notification, a custom `message` can be set. Additionally, the `screenshot` attachment can be toggled per provider.
 
-A couple of example URLs for different notification services: 
+A couple of example URLs for different notification services:
 - `pover://user@token`: Pushover
 - `tgram://bottoken/ChatID`: Telegram
 - `discord://webhook_id/webhook_token`: Discord
- 
+
 ### `customer.json`
 In the `customer.json` file you can configure your locale and the field contents used for auto-filling the checkout forms. Some fields require specific values.
 
@@ -221,3 +236,23 @@ For `en-us` locale, the `state` field can have the following values:
 - `WI`: Wisconsin
 - `WY`: Wyoming
 - `YT`: Yukon
+
+### CAPTCHA
+
+To enable CAPTCHA support, follow these steps.
+
+1. Ensure you're using the latest code, ex. `git pull`. If using Git via the command line isn't your thing, you may just want to download this repo again.
+1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-3.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. We want to download the *.xpi file. Try using the link in a browser other than Firefox.
+1. Put the *.xpi file inside the root of the `nvidia-sniper` directory.
+
+    <center>
+    <img src="images/folder.png" alt="folder" />
+    </center>
+
+1. Create an account using one of ReCaptcha Solver's supported APIs, ex. [2captcha](https://2captcha.com). Deposit money into your account. A few :dollar: should be enough.
+1. Start the bot as per the instructions in the [Usage](#Usage) section. After you go through the bot's selection process, you should see the ReCaptcha Solver extension in the browser.
+1. Copy your API key from the provider of your choice. Add this key to the extension. Also, enable the checkboxes as shown below.
+
+    <center>
+    <img src="images/recaptchasolver.png" alt="ReCaptcha Solver" />
+    </center>
