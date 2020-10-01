@@ -211,6 +211,8 @@ async def main():
         logging.info('ReCaptcha solver detected, enabled')
         extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi") # Must be the full path to an XPI file!
         driver.install_addon(extension_path, temporary=True)
+    else:
+        logging.info('ReCaptcha solver not found')
 
     while True:
         checkout_reached = await checkout_api(
