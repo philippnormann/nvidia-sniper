@@ -30,6 +30,26 @@ def read_json(filename):
     with open(filename, encoding='utf-8') as json_file:
         return json.load(json_file)
 
+async def check_stock(driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
+    dr_id = 5438481700
+    logging.info(
+        f"Checking {locale} availability for {target_gpu['name']} using API...")
+    async with aiohttp.ClientSession(headers={'User-Agent': user_agent}, cookie_jar=aiohttp.CookieJar()) as session:
+        try:
+            inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
+        except Exception:
+            logging.exception(
+                f'Failed to get inventory status for {dr_id}')
+            return False
+        logging.info(f'Inventory status for {dr_id}: {inventory}')
+        if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
+            logging.info(f"Found available GPU: {target_gpu['name']}")
+            if notifications['availability']['enabled']:
+                driver.save_screenshot(const.SCREENSHOT_FILE)
+                notification_queue.put('availability')
+            return True
+        else:
+            return False
 
 async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
     logging.info(
@@ -78,8 +98,9 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
                     logging.exception(f'Failed to add item to basket')
                     return False
                 try:
-                    logging.info('Going to checkout page...')
-                    driver.get(const.CHECKOUT_URL)
+                    while const.CHECKOUT_MATCH not in driver.current_url:
+                        logging.info(f'Navigating to checkout page {const.CHECKOUT_URL}. Current page {driver.current_url}')
+                        driver.get(const.CHECKOUT_URL)
                     if notifications['add-to-basket']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('add-to-basket')
@@ -215,15 +236,21 @@ async def main():
         logging.info('ReCaptcha solver not found')
 
     while True:
-        checkout_reached = await checkout_api(
-            driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
+        #checkout_reached = await checkout_api(
+        #    driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
 
-        if not checkout_reached:
+        #if not checkout_reached:
+         #   sleep(timeout)
+          #  checkout_reached = checkout_selenium(
+           #     driver, timeout, locale, target_gpu, notifications, notification_queue)
+
+        in_stock = await check_stock(driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
+
+        if not in_stock:
+            logging.info('Not in stock. Sleeping...')
             sleep(timeout)
-            checkout_reached = checkout_selenium(
-                driver, timeout, locale, target_gpu, notifications, notification_queue)
 
-        if checkout_reached:
+        if in_stock:
             if payment_method == 'credit-card':
                 nvidia.checkout_guest(
                     driver, timeout, customer, auto_submit)
