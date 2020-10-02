@@ -4,8 +4,15 @@ import json
 import logging
 import queue
 import asyncio
-import aiohttp
-import colorama
+try:
+    import aiohttp
+    import colorama
+except Exception:
+    logging.error(
+        'Could not import all required modules. '\
+        'Please run the following command again:\n\n'\
+        '\tpipenv install\n')
+    exit()
 
 from pathlib import Path
 from time import sleep
