@@ -110,6 +110,11 @@ The `speed` field can have the following values:
 - `shippingOptionID3`: Next Business day Afternoon
 - `shippingOptionID4`: Second Business Day Afternoon
 
+### `backup-speed`
+There has been a common issue related to shipping speeds not being available when cards are available.
+- `true`: (Default) Fallback to using the standard shipping speed when the desired speed isn't available
+- `false`: Stop the bot from continuing with checkout
+
 ### `country`
 The `country` field can have the following values:
 - `AT`: Austria
