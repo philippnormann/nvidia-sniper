@@ -63,29 +63,35 @@ pipenv install
     - `pipenv install`
 
 ### Windows
-1. Install [Python](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html) for Windows
-2. Install the latest version of [Firefox](https://www.firefox.com/)
-3. Open PowerShell and install Pipenv using
+1. Check if you already have a Python 3.8 installation by opening Windows PowerShell and executing `python --version`
+    - If you see `Python 3.8.0` or higher, skip to step 3
+    - If you see `Python 3.7.9` or lower, skip to step 2
+    - If you see `python : The term 'python' is not recognized`, continue to step 2
+2. Install the latest [Python 3.8](https://www.microsoft.com/en-us/p/python-38/9mssztt1n39l) for Windows
+3. Install the latest version of [Firefox](https://www.firefox.com/)
+4. Exit all PowerShell windows, then open a new PowerShell and install Pipenv using
     - `pip install pipenv`
-4. Navigate to project directory using
-    - `cd nvidia-sniper`
-5. Install project dependencies using
+5. Navigate to project directory
+    - If you downloaded (using git clone, or ZIP and extract) the project to `C:\Users\user\Documents\nvidia-sniper`, then use the following command: `cd C:\Users\user\Documents\nvidia-sniper`
+6. Install project dependencies using
     - `pipenv install`
-6. Install curses for Windows using
+7. Install curses for Windows using
     - `pipenv install windows-curses`
 
 <details>
-  <summary>If step 5. throws an error saying pipenv is not recognized</summary>
+  <summary>If step 6 results in `pipenv : The term 'pipenv' is not recognized`</summary>
 
-  1. From the project directory root, setup a virtual environment using
+  1. Setup a virtual environment using
       - `python -m venv .venv`
-  2. Activate the virtual environment using
+  2. Ensure you have the latest Python version using
+      - `python -m venv --upgrade .venv`
+  3. Activate the virtual environment using
       - `.venv/Scripts/activate`
-  3. Install `pipenv` again using
+  4. Install `pipenv` again using
       - `pip install pipenv`
-  4. Install project dependencies using
+  5. Install project dependencies using
       - `pipenv install`
-  5. Install curses for Windows using
+  6. Install curses for Windows using
       - `pipenv install windows-curses`
 </details>
 
