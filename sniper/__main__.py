@@ -167,7 +167,7 @@ async def main():
     user_agent = driver.execute_script('return navigator.userAgent;')
 
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
-    fh = logging.FileHandler('sniper.log')
+    fh = logging.FileHandler('sniper.log', encoding='utf-8')
     sh = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO,
                         format=log_format, handlers=[fh, sh])
