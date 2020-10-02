@@ -48,8 +48,8 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
             try:
                 inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
             except Exception:
-                logging.exception(
-                    f'Failed to get inventory status for {dr_id}')
+                logging.info(
+                    f'Failed to get inventory status for {dr_id}, the API is most likely down for everyone')
                 return False
             logging.info(f'Inventory status for {dr_id}: {inventory}')
             if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
