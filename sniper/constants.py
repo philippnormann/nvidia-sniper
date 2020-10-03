@@ -1,4 +1,12 @@
-from colorama import Fore, Style
+import logging
+try:
+    from colorama import Fore, Style
+except Exception:
+    logging.error(
+        'Could not import all required modules. '\
+        'Please run the following command again:\n\n'\
+        '\tpipenv install\n')
+    exit()
 
 HEADER = f'''
 {Fore.GREEN}
