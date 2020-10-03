@@ -1,12 +1,20 @@
 import os
 import shutil
 import configparser
+import logging
 
 from sys import platform
 from pathlib import Path
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options, FirefoxProfile
-from webdriver_manager.firefox import GeckoDriverManager
+try:
+    from selenium import webdriver
+    from selenium.webdriver.firefox.options import Options, FirefoxProfile
+    from webdriver_manager.firefox import GeckoDriverManager
+except Exception:
+    logging.error(
+        'Could not import all required modules. '\
+        'Please run the following command again:\n\n'\
+        '\tpipenv install\n')
+    exit()
 
 def get_default_profile():
     if platform == 'linux' or platform == 'linux2':
