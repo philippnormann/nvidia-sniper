@@ -132,7 +132,16 @@ def fill_out_form(driver, timeout, customer):
         customer['billing']['email'])
 
     if 'shipping' in customer:
-        driver.find_element(By.ID, customer['shipping']['speed']).click()
+        try:
+            shipping_speed = customer['shipping']['speed']
+            driver.find_element(By.ID, shipping_speed).click()
+        except Exception:
+            logging.warning(f'Could not find shipping speed {shipping_speed}')
+            if customer['shipping']['backup-speed']:
+                logging.info('Continuing with default speed')
+            else:
+                logging.info('User opted to stop if shipping speed not found.')
+                exit()
 
         shipping_expanded = False
         while not shipping_expanded:
