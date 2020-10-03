@@ -218,11 +218,11 @@ def fill_out_form(driver, timeout, customer):
 def skip_address_check(driver, customer_billing, customer_shipping):
     if customer_billing:
         driver.find_element(By.ID, 'billingAddressOptionRow1').click()
+    else:
+        driver.find_element(By.ID, 'billingAddressOptionRow2').click()
     if customer_shipping:
         driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-    if not customer_billing:
-        driver.find_element(By.ID, 'billingAddressOptionRow2').click()
-    if not customer_shipping:
+    else:
         driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
