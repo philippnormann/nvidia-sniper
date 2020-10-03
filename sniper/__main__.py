@@ -4,16 +4,24 @@ import json
 import logging
 import queue
 import asyncio
-import aiohttp
-import colorama
+try:
+    import aiohttp
+    import colorama
+    
+    from pick import pick
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
+except Exception:
+    logging.error(
+        'Could not import all required modules. '\
+        'Please run the following command again:\n\n'\
+        '\tpipenv install\n')
+    exit()
 
 from pathlib import Path
 from time import sleep
-from pick import pick
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 
 import sniper.api as api
 import sniper.nvidia as nvidia

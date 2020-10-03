@@ -1,8 +1,15 @@
 import sys
 import threading
 import logging
-import apprise
 import asyncio
+try:
+    import apprise
+except Exception:
+    logging.error(
+        'Could not import all required modules. '\
+        'Please run the following command again:\n\n'\
+        '\tpipenv install\n')
+    exit()
 
 
 class Notifier():
