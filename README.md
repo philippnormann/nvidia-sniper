@@ -130,6 +130,8 @@ To use the bot, fill out `config/customer.json` and run the script.
 cd nvidia-sniper
 pipenv run python -m sniper
 ```
+
+It is highly recommended that after starting the bot, you open gmail(or another Google service) in a new tab of the bot's browser and login.  Afterwards, you can close that tab.  This greatly reduces the possibility of recaptcha requiring you to pass an image test, thus speeding up the checkout significantly.
 ## Configuration
 In the `config` folder a `customer.json` file and `notifications.json` file are used to configure the data used to auto fill the forms and to configure the bots notifications. To get started, copy and rename the two template files and customize the fields to your liking.
 
