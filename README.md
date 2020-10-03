@@ -65,7 +65,8 @@ pipenv install
     - If you see `Python 3.8.0` or higher, skip to step 4
     - If you see `Python 3.7.9` or lower, skip to step 2
     - If you see `python : The term 'python' is not recognized`, continue to step 2
-2. Install the latest [Python 3.8](https://www.microsoft.com/en-us/p/python-38/9mssztt1n39l) for Windows
+2. Install the latest [Python 3.8](https://www.python.org/ftp/python/3.8.6/python-3.8.6-amd64.exe) for Windows
+    - Click `Add Path` at the bottom of the first installation page.
 3. Ensure you have the correct Python on your PATH
     - Open the Start menu and enter `PATH`, then press Enter
     - Click the `Environment Vairables...` button
