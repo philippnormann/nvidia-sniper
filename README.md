@@ -156,12 +156,14 @@ The `locale` field can have the following values:
 - `de-de`: Germany
 - `it-it`: Italy
 - `fr-fr`: Luxembourg
+- `nl-nl`: Netherlands
 - `pl-pl`: Poland
 - `ru-ru`: Russian Federation
 - `es-es`: Spain
 - `sv-se`: Sweden
 - `en-gb`: United Kingdom
 - `en-us`: United States
+
 
 ### `speed`
 The `speed` field can have the following values:
@@ -186,6 +188,7 @@ The `country` field can have the following values:
 - `DE`: Germany
 - `IT`: Italy
 - `LU`: Luxembourg
+- `NL`: Netherlands
 - `PL`: Poland
 - `RU`: Russian Federation
 - `ES`: Spain
