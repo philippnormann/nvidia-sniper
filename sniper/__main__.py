@@ -193,6 +193,16 @@ async def main():
                              'Which payment method do you want to use?',
                              indicator='=>')
 
+    customer_billing = pick(['Yes', 'No'],
+                             'Use billing address in customer.json over the one suggested by Digital River?',
+                             indicator='=>')
+    customer_billing = customer_billing == 'Yes'
+
+    customer_shipping = pick(['Yes', 'No'],
+                             'Use shipping address in customer.json over the one suggested by Digital River?',
+                             indicator='=>')
+    customer_shipping = customer_shipping == 'Yes'
+
     auto_submit, _ = pick(['Yes', 'No'],
                           'Do you want to automatically submit the order? (only works with credit card)',
                           indicator='=>',  default_index=1)
@@ -241,7 +251,7 @@ async def main():
         if checkout_reached:
             if payment_method == 'credit-card':
                 nvidia.checkout_guest(
-                    driver, timeout, customer, auto_submit)
+                    driver, timeout, customer, customer_billing, customer_shipping, auto_submit)
             else:
                 nvidia.checkout_paypal(driver, timeout),
 

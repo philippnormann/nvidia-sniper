@@ -215,9 +215,15 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['code'])
 
 
-def skip_address_check(driver):
-    driver.find_element(By.ID, 'billingAddressOptionRow2').click()
-    driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+def skip_address_check(driver, customer_billing, customer_shipping):
+    if customer_billing:
+        driver.find_element(By.ID, 'billingAddressOptionRow1').click()
+    if customer_shipping:
+        driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
+    if not customer_billing:
+        driver.find_element(By.ID, 'billingAddressOptionRow2').click()
+    if not customer_shipping:
+        driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
 
@@ -246,7 +252,7 @@ def submit_order(driver, timeout):
         return False
 
 
-def checkout_guest(driver, timeout, customer, auto_submit=False):
+def checkout_guest(driver, timeout, customer, customer_billing, customer_shipping, auto_submit=False):
     proceeded_to_form = False
     logging.info('Checking out as guest...')
     while not proceeded_to_form:
@@ -271,7 +277,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
 
     try:
         driver.find_element(By.CLASS_NAME, 'dr_error')
-        skip_address_check(driver)
+        skip_address_check(driver, customer_billing, customer_shipping)
     except NoSuchElementException:
         pass
 
