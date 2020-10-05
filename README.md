@@ -62,21 +62,19 @@ pipenv install
 
 ### Windows
 1. Check if you already have a Python 3.8 installation by opening Windows PowerShell and executing `python --version`
-    - If you see `Python 3.8.0` or higher, skip to step 3
-    - If you see `Python 3.7.9` or lower, continue with step 2
-    - If you see `python: The term 'python' is not recognized`, continue with step 2
+    - If you see `Python 3.8.0` or higher, skip to step 4, otherwise continue to step 2
 2. Install the latest [Python 3.8](https://www.python.org/ftp/python/3.8.6/python-3.8.6-amd64.exe) for Windows
     - Click `Add Path` at the bottom of the first installation page.
 3. Install the latest version of [Firefox](https://www.firefox.com/)
 4. Exit all PowerShell windows, then open a new PowerShell and install Pipenv using
     - `pip install pipenv`
 5. Navigate to project directory
-    - If you downloaded (using git clone, or ZIP and extract) the project to `C:\Users\user\Documents\nvidia-sniper`, then use the following command: `cd C:\Users\user\Documents\nvidia-sniper`
+    - If you downloaded (using git clone, or ZIP and extract) the project to `C:\Users\user\Documents\nvidia-sniper`, then use the following command: `cd     C:\Users\user\Documents\nvidia-sniper`
 6. Install project dependencies using
     - `pipenv install`
 7. Install curses for Windows using
     - `pipenv install windows-curses`
-
+    
 <details>
   <summary>If step 7 results in `pipenv : The term 'pipenv' is not recognized`</summary>
 
@@ -94,11 +92,26 @@ pipenv install
       - `pipenv install windows-curses`
 </details>
 
+<details>
+  <summary>If you get `python : The term 'python' is not recognized` even after installing Python 3.8 </summary>
+ 
+  1. Open the Start menu and enter `PATH`, then press Enter
+  2. Click the `Environment Vairables...` button
+  3. In the `User variables for user` section, click the variable `Path`, then click the `Edit...` button
+  4. A new window called `Edit environment variable` will pop up, ensure `C:\Users\user\AppData\Local\Microsoft\WindowsApps` exists in this list, where `user` is your username in Windows
+  5. If that path is not in the list, add it using the `New` button
+  6. Remove all other PATHs which contain anything to do with Python, Pip, or Idle by clicking them, then clicking the `Delete` button
+  7. Click `OK` to close the `Edit environment variable` window
+  8. Click `OK` to close the `Environment Variables` window
+  9. Click `OK` to close the `System Properties` window
+
+ </details>
+
 ### CAPTCHA
 
-To enable CAPTCHA support, follow these steps.
+This bot is equipped with the ability to resolve simple reCAPTCHA on its own without the use of a third party reCAPTCHA solver.  As long as you follow the recommendation in the usage section below, it is extremely likely that the bot will succesfully complete the full auto-checkout process.  With that said, there is a very small possibility that you will be presented with a more advanced reCAPTCHA requiring solving image tasks that the bot cannot handle natively.  If you would like to have a backup in place for that possibility, you have that option by following the steps below.   
 
-1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. Right click the link and select "Save link as" to download the *.xpi file or try opening the link in a browser other than Firefox.
+1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. Right click the link and select "Save link as" to download the *.xpi file. Try using the link in a browser other than Firefox.
 2. Put the *.xpi file inside the root of the `nvidia-sniper` directory.
 
     <img src="images/folder.png" alt="folder" width=150/>
@@ -190,7 +203,7 @@ The `country` field can have the following values:
 - `US`: United States
 
 ### `state`
-For `en-us` and `en-ca` locale, the `state` field can have the following values:
+For `en-us` locale, the `state` field can have the following values:
 - `AL`: Alabama
 - `AK`: Alaska
 - `AB`: Alberta
