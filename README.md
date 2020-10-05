@@ -69,12 +69,11 @@ pipenv install
 4. Exit all PowerShell windows, then open a new PowerShell and install Pipenv using
     - `pip install pipenv`
 5. Navigate to project directory
-    - If you downloaded (using git clone, or ZIP and extract) the project to `C:\Users\user\Documents\nvidia-sniper`, then use the following command: `cd     C:\Users\user\Documents\nvidia-sniper`
+    - If you downloaded (using git clone, or ZIP and extract) the project to `C:\Users\user\Documents\nvidia-sniper`, then use the following command: `cd C:\Users\user\Documents\nvidia-sniper`
 6. Install project dependencies using
     - `pipenv install`
 7. Install curses for Windows using
     - `pipenv install windows-curses`
-    
 <details>
   <summary>If step 7 results in `pipenv : The term 'pipenv' is not recognized`</summary>
 
