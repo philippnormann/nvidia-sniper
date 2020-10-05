@@ -111,7 +111,7 @@ pipenv install
 
 This bot is equipped with the ability to resolve simple reCAPTCHA on its own without the use of a third party reCAPTCHA solver.  As long as you follow the recommendation in the usage section below, it is extremely likely that the bot will succesfully complete the full auto-checkout process.  With that said, there is a very small possibility that you will be presented with a more advanced reCAPTCHA requiring solving image tasks that the bot cannot handle natively.  If you would like to have a backup in place for that possibility, you have that option by following the steps below.   
 
-1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. Right click the link and select "Save link as" to download the *.xpi file. Try using the link in a browser other than Firefox.
+1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. Right click the link and select "Save link as" to download the *.xpi file or try opening. Try using the link in a browser other than Firefox.
 2. Put the *.xpi file inside the root of the `nvidia-sniper` directory.
 
     <img src="images/folder.png" alt="folder" width=150/>
