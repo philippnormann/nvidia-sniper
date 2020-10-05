@@ -75,7 +75,7 @@ pipenv install
 7. Install curses for Windows using
     - `pipenv install windows-curses`
 <details>
-  <summary>If step 7 results in `pipenv : The term 'pipenv' is not recognized`</summary>
+  <summary>If step 6 results in `pipenv : The term 'pipenv' is not recognized`</summary>
 
   1. Setup a virtual environment using
       - `python -m venv .venv`
