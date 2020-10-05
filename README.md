@@ -97,8 +97,9 @@ pipenv install
   1. Open the Start menu and enter `PATH`, then press Enter
   2. Click the `Environment Vairables...` button
   3. In the `User variables for user` section, click the variable `Path`, then click the `Edit...` button
-  4. A new window called `Edit environment variable` will pop up, ensure `C:\Users\user\AppData\Local\Microsoft\WindowsApps` exists in this list, where `user` is your username in Windows
-  5. If that path is not in the list, add it using the `New` button
+  4. A new window called `Edit environment variable` will pop up, ensure `C:\Users\<username>\AppData\Local\Programs\Python\Python38\Scripts` and 
+  `C:\Users\<username>\AppData\Local\Programs\Python\Python38` exists in this list, where `<username>` is your username in Windows
+  5. If these paths are not in the list, add them using the `New` button
   6. Remove all other PATHs which contain anything to do with Python, Pip, or Idle by clicking them, then clicking the `Delete` button
   7. Click `OK` to close the `Edit environment variable` window
   8. Click `OK` to close the `Environment Variables` window
