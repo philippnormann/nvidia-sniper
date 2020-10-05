@@ -203,7 +203,7 @@ The `country` field can have the following values:
 - `US`: United States
 
 ### `state`
-For `en-us`  and `en-ca` locale, the `state` field can have the following values:
+For `en-us` and `en-ca` locale, the `state` field can have the following values:
 - `AL`: Alabama
 - `AK`: Alaska
 - `AB`: Alberta
