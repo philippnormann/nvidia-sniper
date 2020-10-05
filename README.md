@@ -107,7 +107,7 @@ pipenv install
 
 To enable CAPTCHA support, follow these steps.
 
-1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. We want to download the *.xpi file. Try using the link in a browser other than Firefox.
+1. Download the [ReCaptcha Solver](https://addons.mozilla.org/en-US/firefox/addon/recaptcha-solver) extension using the link https://addons.mozilla.org/firefox/downloads/file/3423472/recaptcha_solver-5.7-fx.xpi. If you open this link in Firefox, it will automatically attempt to add the extension to your browser. That's not what we want. Right click the link and select "Save link as" to download the *.xpi file. Try using the link in a browser other than Firefox.
 2. Put the *.xpi file inside the root of the `nvidia-sniper` directory.
 
     <img src="images/folder.png" alt="folder" width=150/>
