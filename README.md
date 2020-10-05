@@ -64,8 +64,12 @@ pipenv install
 1. Check if you already have a Python 3.8 installation by opening Windows PowerShell and executing `python --version`
     - If you see `Python 3.8.0` or higher, skip to step 4
     - If you see `Python 3.7.9` or lower, skip to step 2
-    - If you see `python : The term 'python' is not recognized`, continue to step 2
-2. Install the latest [Python 3.8](https://www.microsoft.com/en-us/p/python-38/9mssztt1n39l) for Windows
+    - If you see `python : The term 'python' is not recognized`, you may continue to step 2.  
+    Alternatively, if you believe Python 3.8 is installed already and wish to add it to your 
+    PATH manually, you may skip to step 3.
+2. Install the latest [Python 3.8](https://www.python.org/ftp/python/3.8.6/python-3.8.6-amd64.exe) for Windows
+    - Click `Add Path` at the bottom of the first installation page.
+    - After the installation completes, you can skip to step 4.
 3. Ensure you have the correct Python on your PATH
     - Open the Start menu and enter `PATH`, then press Enter
     - Click the `Environment Vairables...` button
