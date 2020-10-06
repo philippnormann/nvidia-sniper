@@ -11,7 +11,7 @@
         "country": "DE",
         "email": "jensen@nvidia.com",
         "phone": "408-486-2000",
-	"force": false
+        "force": false
     },
     "shipping": {
         "first-name": "Lisa",
@@ -25,7 +25,7 @@
         "phone": "89-4505-3199",
         "speed": "shippingOptionID2",
         "backup-speed": true,
-	"force": false
+        "force": false
     },
     "credit": {
         "card": "4111111111111111",
