@@ -184,8 +184,8 @@ There has been a common issue related to shipping speeds not being available whe
 
 ### `force`
 Toggling this option forces sniper to use the address(es) in customer.json instead of the one suggested by Digital River during the checkout process.
-`true`: Use address(es) in customer.json
-`false`: (Default) Use address(es) suggested by Digital River
+- `true`: Use address(es) in customer.json
+- `false`: (Default) Use address(es) suggested by Digital River
 
 ### `country`
 The `country` field can have the following values:
