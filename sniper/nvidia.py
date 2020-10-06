@@ -215,9 +215,15 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['code'])
 
 
-def skip_address_check(driver):
-    driver.find_element(By.ID, 'billingAddressOptionRow2').click()
-    driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+def skip_address_check(driver, customer):
+    if customer['billing']['force']:
+        driver.find_element(By.ID, 'billingAddressOptionRow1').click()
+    else:
+        driver.find_element(By.ID, 'billingAddressOptionRow2').click()
+    if customer['shipping']['force']:
+        driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
+    else:
+        driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
 
@@ -271,7 +277,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
 
     try:
         driver.find_element(By.CLASS_NAME, 'dr_error')
-        skip_address_check(driver)
+        skip_address_check(driver, customer)
     except NoSuchElementException:
         pass
 
