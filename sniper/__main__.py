@@ -196,7 +196,7 @@ async def main():
     auto_submit = None
     if payment_method == 'credit-card':
         auto_submit, _ = pick(['Yes', 'No'],
-                              'Do you want to automatically submit the order? (only works with credit card)',
+                              'Do you want to automatically submit the order?',
                               indicator='=>',  default_index=1)
         auto_submit = auto_submit == 'Yes'
 
