@@ -153,7 +153,7 @@ In the `customer.json` file you can configure your locale and the field contents
 ### `locale`
 The `locale` field can have the following values:
 - `de-at`: Austria
-- `fr-fr`: Belgium
+- `fr-be`: Belgium
 - `en-ca`: Canada
 - `cs-cz`: Czech Republic
 - `da-dk`: Denmark
@@ -161,10 +161,9 @@ The `locale` field can have the following values:
 - `fr-fr`: France
 - `de-de`: Germany
 - `it-it`: Italy
-- `fr-fr`: Luxembourg
 - `nl-nl`: Netherlands
+- `nb-no`: Norway
 - `pl-pl`: Poland
-- `ru-ru`: Russian Federation
 - `es-es`: Spain
 - `sv-se`: Sweden
 - `en-gb`: United Kingdom
@@ -193,10 +192,9 @@ The `country` field can have the following values:
 - `FR`: France
 - `DE`: Germany
 - `IT`: Italy
-- `LU`: Luxembourg
 - `NL`: Netherlands
+- `NO`: Norway
 - `PL`: Poland
-- `RU`: Russian Federation
 - `ES`: Spain
 - `SE`: Sweden
 - `GB`: United Kingdom

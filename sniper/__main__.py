@@ -39,11 +39,11 @@ def read_json(filename):
         return json.load(json_file)
 
 
-async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
+async def checkout_api(driver, user_agent, timeout, promo_locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
     logging.info(
-        f"Checking {locale} availability for {target_gpu['name']} using API...")
+        f"Checking {promo_locale} availability for {target_gpu['name']} using API...")
     product_loaded = nvidia.get_product_page(
-        driver, locale, target_gpu, anticache=True)
+        driver, promo_locale, target_gpu, anticache=True)
     if product_loaded:
         try:
             item = driver.find_element(
@@ -102,10 +102,10 @@ async def checkout_api(driver, user_agent, timeout, locale, dr_locale, api_curre
         return False
 
 
-def checkout_selenium(driver, timeout, locale, target_gpu, notifications, notification_queue):
+def checkout_selenium(driver, timeout, promo_locale, target_gpu, notifications, notification_queue):
     logging.info(
-        f"Checking {locale} availability for {target_gpu['name']} using selenium...")
-    product_loaded = nvidia.get_product_page(driver, locale, target_gpu)
+        f"Checking {promo_locale} availability for {target_gpu['name']} using selenium...")
+    product_loaded = nvidia.get_product_page(driver, promo_locale, target_gpu)
     if product_loaded:
         gpu_available = nvidia.check_availability(driver, timeout)
         if gpu_available:
@@ -126,7 +126,7 @@ def checkout_selenium(driver, timeout, locale, target_gpu, notifications, notifi
                 notification_queue.put('add-to-basket')
             logging.info('Going to checkout page...')
             checkout_reached = nvidia.to_checkout(
-                driver, timeout, locale, notification_queue)
+                driver, timeout, promo_locale, notification_queue)
             if checkout_reached:
                 return True
             else:
@@ -180,10 +180,6 @@ async def main():
     logging.basicConfig(level=logging.INFO,
                         format=log_format, handlers=[fh, sh])
 
-    logging.info('|---------------------------|')
-    logging.info('| Starting Nvidia Sniper 🎯 |')
-    logging.info('|---------------------------|')
-
     gpu_data = read_json(data_path / 'gpus.json')
     target_gpu, _ = pick(list(gpu_data.keys()),
                          'Which GPU are you targeting?',
@@ -212,11 +208,20 @@ async def main():
 
     locale = customer['locale']
     locales = read_json(data_path / 'locales.json')
-    dr_locale = locales[locale]['DRlocale']
     api_currency = locales[locale]['apiCurrency']
+    dr_locale = locales[locale]['DRlocale']
+    promo_locale = locales[locale]['PromoLocale'].replace('_','-').lower()
+
+    logging.info('|---------------------------|')
+    logging.info('| Starting Nvidia Sniper 🎯 |')
+    logging.info(f'|  Customer locale: {locale}   |')
+    logging.info(f'|    Nvidia locale: {promo_locale}   |')
+    logging.info(f'|        DR locale: {dr_locale}   |')
+    logging.info(f'|         Currency: {api_currency}     |')
+    logging.info('|---------------------------|')
 
     if notifications['started']['enabled']:
-        nvidia.get_product_page(driver, locale, target_gpu)
+        nvidia.get_product_page(driver, promo_locale, target_gpu)
         WebDriverWait(driver, timeout).until(EC.presence_of_element_located(
             (By.CLASS_NAME, const.BANNER_CLASS)))
         driver.save_screenshot(const.SCREENSHOT_FILE)
@@ -231,12 +236,12 @@ async def main():
 
     while True:
         checkout_reached = await checkout_api(
-            driver, user_agent, timeout, locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
+            driver, user_agent, timeout, promo_locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
 
         if not checkout_reached:
             sleep(timeout)
             checkout_reached = checkout_selenium(
-                driver, timeout, locale, target_gpu, notifications, notification_queue)
+                driver, timeout, promo_locale, target_gpu, notifications, notification_queue)
 
         if checkout_reached:
             if payment_method == 'credit-card':

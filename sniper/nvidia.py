@@ -25,12 +25,12 @@ def scroll_to(driver, element):
         'arguments[0].scrollIntoView({block: "center"})', element)
 
 
-def get_product_page(driver, locale, gpu, anticache=False):
+def get_product_page(driver, promo_locale, gpu, anticache=False):
     anticache_key = ''.join(random.choice(string.ascii_lowercase)
                             for i in range(5))
     anticache_value = random.randint(0, 9999)
     anticache_query = f'?{anticache_key}={anticache_value}'
-    full_url = f"https://www.nvidia.com/{locale}{gpu['url']}"
+    full_url = f"https://www.nvidia.com/{promo_locale}{gpu['url']}"
     if anticache:
         full_url += anticache_query
     try:
