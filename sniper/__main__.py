@@ -189,10 +189,12 @@ async def main():
                              'Which payment method do you want to use?',
                              indicator='=>')
 
-    auto_submit, _ = pick(['Yes', 'No'],
-                          'Do you want to automatically submit the order? (only works with credit card)',
-                          indicator='=>',  default_index=1)
-    auto_submit = auto_submit == 'Yes'
+    auto_submit = None
+    if payment_method == 'credit-card':
+        auto_submit, _ = pick(['Yes', 'No'],
+                              'Do you want to automatically submit the order?',
+                              indicator='=>',  default_index=1)
+        auto_submit = auto_submit == 'Yes'
 
     timeout, _ = pick([' 4 seconds', ' 8 seconds', '16 seconds', '32 seconds', '64 seconds'],
                       'Please choose a timout / refresh interval', indicator='=>', default_index=1)
