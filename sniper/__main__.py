@@ -5,9 +5,8 @@ import logging
 import queue
 import asyncio
 try:
-    import aiohttp
     import colorama
-    
+
     from pick import pick
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
@@ -15,8 +14,8 @@ try:
     from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 except Exception:
     logging.error(
-        'Could not import all required modules. '\
-        'Please run the following command again:\n\n'\
+        'Could not import all required modules. '
+        'Please run the following command again:\n\n'
         '\tpipenv install\n')
     exit()
 
@@ -24,7 +23,7 @@ from pathlib import Path
 from time import sleep
 
 import sniper.api as api
-import sniper.nvidia as nvidia
+import sniper.checkout as checkout
 import sniper.constants as const
 import sniper.webdriver as webdriver
 import sniper.notifications as notify
@@ -39,11 +38,11 @@ def read_json(filename):
         return json.load(json_file)
 
 
-async def checkout_api(driver, user_agent, timeout, promo_locale, dr_locale, api_currency, target_gpu, notifications, notification_queue):
+async def checkout_api(driver, client, notifications):
     logging.info(
-        f"Checking {promo_locale} availability for {target_gpu['name']} using API...")
-    product_loaded = nvidia.get_product_page(
-        driver, promo_locale, target_gpu, anticache=True)
+        f"Checking {client.promo_locale} availability for {client.target_gpu['name']} using API...")
+    product_loaded = checkout.get_product_page(
+        driver, client.promo_locale, client.target_gpu, anticache=True)
     if product_loaded:
         try:
             item = driver.find_element(
@@ -52,90 +51,53 @@ async def checkout_api(driver, user_agent, timeout, promo_locale, dr_locale, api
         except NoSuchElementException:
             logging.info('Failed to locate Digital River ID on product page')
             return False
-        async with aiohttp.ClientSession(headers={'User-Agent': user_agent}, cookie_jar=aiohttp.CookieJar()) as session:
-            try:
-                inventory = await api.get_inventory_status(session, dr_locale, api_currency, dr_id)
-            except Exception:
-                logging.info(
-                    f'Failed to get inventory status for {dr_id}, the API is most likely down for everyone')
-                return False
-            logging.info(f'Inventory status for {dr_id}: {inventory}')
-            if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
-                logging.info(f"Found available GPU: {target_gpu['name']}")
-                if notifications['availability']['enabled']:
-                    driver.save_screenshot(const.SCREENSHOT_FILE)
-                    notification_queue.put('availability')
-                try:
-                    logging.info('Fetching API token...')
-                    store_token = await api.fetch_token(session, dr_locale)
-                    logging.info('API Token: ' + store_token)
-                    logging.info('Overiding store cookies for driver...')
-                    driver.get(const.STORE_URL)
-                    for key, morsel in session.cookie_jar.filter_cookies(const.STORE_URL).items():
-                        driver.add_cookie(
-                            {'name': key, 'value': morsel.value, 'domain': const.STORE_HOST})
-                except Exception:
-                    logging.exception(f'Failed to fetch API token')
-                    return False
-                try:
-                    logging.info('Calling add to cart API...')
-                    add_to_cart_response = await api.add_to_cart(session, store_token, dr_locale, dr_id)
-                    response = add_to_cart_response['message']
-                    logging.info(f'Add to basket response: {response}')
-                except Exception:
-                    logging.exception(f'Failed to add item to basket')
-                    return False
-                try:
-                    logging.info('Going to checkout page...')
-                    driver.get(const.CHECKOUT_URL)
-                    if notifications['add-to-basket']['enabled']:
-                        driver.save_screenshot(const.SCREENSHOT_FILE)
-                        notification_queue.put('add-to-basket')
-                    return True
-                except (TimeoutException, WebDriverException):
-                    logging.error(
-                        'Lost basket and failed to checkout, trying again...')
-                    return False
-            else:
-                return False
-    else:
-        return False
-
-
-def checkout_selenium(driver, timeout, promo_locale, target_gpu, notifications, notification_queue):
-    logging.info(
-        f"Checking {promo_locale} availability for {target_gpu['name']} using selenium...")
-    product_loaded = nvidia.get_product_page(driver, promo_locale, target_gpu)
-    if product_loaded:
-        gpu_available = nvidia.check_availability(driver, timeout)
-        if gpu_available:
-            logging.info(f"Found available GPU: {target_gpu['name']}")
+        try:
+            inventory = await client.get_inventory_status(dr_id)
+        except Exception as ex:
+            logging.error(
+                f'Failed to get inventory status for {dr_id}, {type(ex).__name__}: ' + ','.join(ex.args))
+            return False
+        logging.info(f'Inventory status for {dr_id}: {inventory}')
+        if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
+            logging.info(f"Found available GPU: {client.target_gpu['name']}")
             if notifications['availability']['enabled']:
                 driver.save_screenshot(const.SCREENSHOT_FILE)
-                notification_queue.put('availability')
-            added_to_basket = False
-            while not added_to_basket:
-                logging.info(f'Trying to add to basket...')
-                added_to_basket = nvidia.add_to_basket(driver, timeout)
-                if not added_to_basket:
-                    logging.info(
-                        f'Add to basket click failed, trying again!')
-            logging.info(f'Add to basket click suceeded!')
-            if notifications['add-to-basket']['enabled']:
-                driver.save_screenshot(const.SCREENSHOT_FILE)
-                notification_queue.put('add-to-basket')
-            logging.info('Going to checkout page...')
-            checkout_reached = nvidia.to_checkout(
-                driver, timeout, promo_locale, notification_queue)
-            if checkout_reached:
+                notifications.queue.put('availability')
+            try:
+                logging.info('Fetching API token...')
+                store_token = await client.fetch_token()
+                logging.info('API Token: ' + store_token)
+                logging.info('Overiding store cookies for driver...')
+                store_cookies = client.get_cookies(const.STORE_URL)
+                driver.get(const.STORE_URL)
+                for key, value in store_cookies.items():
+                    driver.add_cookie({'name': key, 'value': value})
+            except Exception as ex:
+                logging.error(
+                    f'Failed to fetch API token, {type(ex).__name__}: ' + ','.join(ex.args))
+                return False
+            try:
+                logging.info('Calling add to cart API...')
+                add_to_cart_response = await client.add_to_cart(store_token, dr_id)
+                response = add_to_cart_response['message']
+                logging.info(f'Add to basket response: {response}')
+            except Exception as ex:
+                logging.error(
+                    f'Failed to add item to basket, {type(ex).__name__}: ' + ','.join(ex.args))
+                return False
+            try:
+                logging.info('Going to checkout page...')
+                driver.get(const.CHECKOUT_URL)
+                if notifications['add-to-basket']['enabled']:
+                    driver.save_screenshot(const.SCREENSHOT_FILE)
+                    notifications.queue.put('add-to-basket')
                 return True
-            else:
+            except (TimeoutException, WebDriverException):
                 logging.error(
                     'Lost basket and failed to checkout, trying again...')
                 return False
         else:
-            logging.info('GPU currently not available')
-        return False
+            return False
     else:
         return False
 
@@ -212,7 +174,9 @@ async def main():
     locales = read_json(data_path / 'locales.json')
     api_currency = locales[locale]['apiCurrency']
     dr_locale = locales[locale]['DRlocale']
-    promo_locale = locales[locale]['PromoLocale'].replace('_','-').lower()
+    promo_locale = locales[locale]['PromoLocale'].replace('_', '-').lower()
+    api_client = api.Client(user_agent, promo_locale,
+                            dr_locale, api_currency, target_gpu)
 
     logging.info('|---------------------------|')
     logging.info('| Starting Nvidia Sniper 🎯 |')
@@ -223,34 +187,30 @@ async def main():
     logging.info('|---------------------------|')
 
     if notifications['started']['enabled']:
-        nvidia.get_product_page(driver, promo_locale, target_gpu)
+        checkout.get_product_page(driver, promo_locale, target_gpu)
         WebDriverWait(driver, timeout).until(EC.presence_of_element_located(
             (By.CLASS_NAME, const.BANNER_CLASS)))
         driver.save_screenshot(const.SCREENSHOT_FILE)
         notification_queue.put('started')
 
-    if os.path.isfile('./recaptcha_solver-5.7-fx.xpi') : # Check if user is using recaptcha extension
+    # Check if user is using recaptcha extension
+    if os.path.isfile('./recaptcha_solver-5.7-fx.xpi'):
         logging.info('ReCaptcha solver detected, enabled')
-        extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi") # Must be the full path to an XPI file!
+        # Must be the full path to an XPI file!
+        extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi")
         driver.install_addon(extension_path, temporary=True)
     else:
         logging.info('ReCaptcha solver not found')
 
     while True:
-        checkout_reached = await checkout_api(
-            driver, user_agent, timeout, promo_locale, dr_locale, api_currency, target_gpu, notifications, notification_queue)
-
-        if not checkout_reached:
-            sleep(timeout)
-            checkout_reached = checkout_selenium(
-                driver, timeout, promo_locale, target_gpu, notifications, notification_queue)
+        checkout_reached = await checkout_api(driver, api_client, notifications)
 
         if checkout_reached:
             if payment_method == 'credit-card':
-                nvidia.checkout_guest(
+                checkout.checkout_guest(
                     driver, timeout, customer, auto_submit)
             else:
-                nvidia.checkout_paypal(driver, timeout),
+                checkout.checkout_paypal(driver, timeout),
 
             logging.info('Checkout successful!')
             if notifications['checkout']['enabled']:
@@ -258,8 +218,8 @@ async def main():
                 notification_queue.put('checkout')
 
             if auto_submit:
-                nvidia.click_recaptcha(driver, timeout)
-                order_submitted = nvidia.submit_order(driver, timeout)
+                checkout.click_recaptcha(driver, timeout)
+                order_submitted = checkout.submit_order(driver, timeout)
                 if order_submitted:
                     logging.info('Auto buy successfully submitted!')
                     if notifications['submit']['enabled']:
@@ -272,11 +232,15 @@ async def main():
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         while not order_submitted:
                             notification_queue.put('captcha-fail')
-                            order_submitted = nvidia.submit_order(
+                            order_submitted = checkout.submit_order(
                                 driver, timeout)
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('submit')
             break
+        else:
+            sleep(timeout)
+
+    await api_client.session.close()
     notification_queue.join()
 
 if __name__ == '__main__':

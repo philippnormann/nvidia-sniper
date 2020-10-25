@@ -40,67 +40,6 @@ def get_product_page(driver, promo_locale, gpu, anticache=False):
         return False
 
 
-def check_availability(driver, timeout):
-    try:
-        add_to_basket_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, const.ADD_TO_BASKET_SELECTOR))
-        WebDriverWait(driver, timeout).until(add_to_basket_clickable)
-        return True
-    except TimeoutException:
-        return False
-
-
-def add_to_basket(driver, timeout):
-    try:
-        add_to_basket_btn = driver.find_element(
-            By.CSS_SELECTOR, const.ADD_TO_BASKET_SELECTOR)
-        scroll_to(driver, add_to_basket_btn)
-        add_to_basket_btn.click()
-        return True
-    except (NoSuchElementException, ElementClickInterceptedException):
-        return False
-
-
-def to_checkout(driver, timeout, locale, notification_queue):
-    try:
-        try:
-            cart_btn = driver.find_element(
-                By.CLASS_NAME, const.CART_ICON_CLASS).click()
-            if cart_btn is not None:
-                cart_btn.click()
-        except (ElementClickInterceptedException, ElementNotInteractableException):
-            pass
-
-        checkout_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, const.CHECKOUT_BUTTON_SELECTOR))
-        WebDriverWait(driver, timeout).until(checkout_clickable)
-        checkout_btn = driver.find_element(
-            By.CSS_SELECTOR, const.CHECKOUT_BUTTON_SELECTOR)
-        checkout_btn.click()
-
-        logging.error('Trying to click pre checkout reCAPTCHA!')
-        # Click CAPTCHA checkbox once and continue
-        try:
-            click_recaptcha(driver, timeout)
-        except NoSuchElementException:
-            pass
-
-        while True:
-            # Wait until checkout page is reached, in the worst case manual intervention is required
-            try:
-                WebDriverWait(driver, timeout).until(
-                    EC.url_contains(const.STORE_HOST))
-                return True
-            except TimeoutException:
-                logging.error(
-                    'Could not reach checkout page, manual intervention might be required!')
-                driver.save_screenshot(const.SCREENSHOT_FILE)
-                notification_queue.put('captcha-fail')
-
-    except (TimeoutException, NoSuchElementException):
-        return False
-
-
 def fill_out_form(driver, timeout, customer):
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
