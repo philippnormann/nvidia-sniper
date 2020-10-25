@@ -15,6 +15,9 @@ selenium = "*"
 webdriver-manager = "*"
 apprise = "*"
 aiohttp = "*"
+beautifulsoup4 = "*"
+asyncio-throttle = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.8"

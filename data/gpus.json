@@ -13,7 +13,7 @@
     },
     "titan-rtx": {
         "name": "NVIDIA TITAN RTX",
-        "url": "/deep-learning-ai/products/titan-rtx"
+        "url": "/titan/titan-rtx/"
     },
     "rtx-2080-super": {
         "name": "GeForce RTX 2080 Super",
