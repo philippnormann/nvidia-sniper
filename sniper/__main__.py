@@ -152,7 +152,8 @@ async def main():
             in_stock = status != 'PRODUCT_INVENTORY_OUT_OF_STOCK'
         except PermissionError:
             logging.error(
-                f'Access to inventory API was denied, trying again...')
+                f'Access to inventory API was denied, clearing cookies and trying again...')
+            api_client.session.cookie_jar.clear()
             sleep(timeout)
         except LookupError:
             logging.error(
