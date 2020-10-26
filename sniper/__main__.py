@@ -38,68 +38,9 @@ def read_json(filename):
         return json.load(json_file)
 
 
-async def checkout_api(driver, client, notifications):
-    logging.info(
-        f"Checking {client.promo_locale} availability for {client.target_gpu['name']} using API...")
-    product_loaded = checkout.get_product_page(
-        driver, client.promo_locale, client.target_gpu, anticache=True)
-    if product_loaded:
-        try:
-            item = driver.find_element(
-                By.CSS_SELECTOR, const.PRODUCT_ITEM_SELECTOR)
-            dr_id = item.get_attribute('data-digital-river-id')
-        except NoSuchElementException:
-            logging.info('Failed to locate Digital River ID on product page')
-            return False
-        try:
-            inventory = await client.get_inventory_status(dr_id)
-        except Exception as ex:
-            logging.error(
-                f'Failed to get inventory status for {dr_id}, {type(ex).__name__}: ' + ','.join(ex.args))
-            return False
-        logging.info(f'Inventory status for {dr_id}: {inventory}')
-        if inventory != 'PRODUCT_INVENTORY_OUT_OF_STOCK':
-            logging.info(f"Found available GPU: {client.target_gpu['name']}")
-            if notifications['availability']['enabled']:
-                driver.save_screenshot(const.SCREENSHOT_FILE)
-                notifications.queue.put('availability')
-            try:
-                logging.info('Fetching API token...')
-                store_token = await client.fetch_token()
-                logging.info('API Token: ' + store_token)
-                logging.info('Overiding store cookies for driver...')
-                store_cookies = client.get_cookies(const.STORE_URL)
-                driver.get(const.STORE_URL)
-                for key, value in store_cookies.items():
-                    driver.add_cookie({'name': key, 'value': value})
-            except Exception as ex:
-                logging.error(
-                    f'Failed to fetch API token, {type(ex).__name__}: ' + ','.join(ex.args))
-                return False
-            try:
-                logging.info('Calling add to cart API...')
-                add_to_cart_response = await client.add_to_cart(store_token, dr_id)
-                response = add_to_cart_response['message']
-                logging.info(f'Add to basket response: {response}')
-            except Exception as ex:
-                logging.error(
-                    f'Failed to add item to basket, {type(ex).__name__}: ' + ','.join(ex.args))
-                return False
-            try:
-                logging.info('Going to checkout page...')
-                driver.get(const.CHECKOUT_URL)
-                if notifications['add-to-basket']['enabled']:
-                    driver.save_screenshot(const.SCREENSHOT_FILE)
-                    notifications.queue.put('add-to-basket')
-                return True
-            except (TimeoutException, WebDriverException):
-                logging.error(
-                    'Lost basket and failed to checkout, trying again...')
-                return False
-        else:
-            return False
-    else:
-        return False
+def update_sku_file(skus):
+    with open(data_path / 'skus.json', 'w+') as f:
+        f.write(json.dumps(skus, indent=4))
 
 
 def read_config():
@@ -143,9 +84,9 @@ async def main():
                         format=log_format, handlers=[fh, sh])
 
     gpu_data = read_json(data_path / 'gpus.json')
-    target_gpu, _ = pick(list(gpu_data.keys()),
-                         'Which GPU are you targeting?',
-                         indicator='=>')
+    target_gpu_name, _ = pick(list(gpu_data.keys()),
+                              'Which GPU are you targeting?',
+                              indicator='=>')
 
     payment_method, _ = pick(['credit-card', 'paypal'],
                              'Which payment method do you want to use?',
@@ -162,7 +103,7 @@ async def main():
                       'Please choose a timout / refresh interval', indicator='=>', default_index=1)
     timeout = int(timeout.replace('seconds', '').strip())
 
-    target_gpu = gpu_data[target_gpu]
+    target_gpu = gpu_data[target_gpu_name]
 
     notifications = notification_config['notifications']
     notification_queue = queue.Queue()
@@ -178,6 +119,9 @@ async def main():
     api_client = api.Client(user_agent, promo_locale,
                             dr_locale, api_currency, target_gpu)
 
+    product_ids = read_json(data_path / 'skus.json')
+    target_id = product_ids[promo_locale][target_gpu_name]
+
     logging.info('|---------------------------|')
     logging.info('| Starting Nvidia Sniper 🎯 |')
     logging.info(f'|  Customer locale: {locale}   |')
@@ -188,27 +132,86 @@ async def main():
 
     if notifications['started']['enabled']:
         checkout.get_product_page(driver, promo_locale, target_gpu)
-        WebDriverWait(driver, timeout).until(EC.presence_of_element_located(
-            (By.CLASS_NAME, const.BANNER_CLASS)))
+        WebDriverWait(driver, timeout).until(EC.visibility_of_element_located(
+            (By.CSS_SELECTOR, f'.{const.BANNER_CLASS} .lazyloaded')))
+        sleep(1)
         driver.save_screenshot(const.SCREENSHOT_FILE)
         notification_queue.put('started')
 
-    # Check if user is using recaptcha extension
-    if os.path.isfile('./recaptcha_solver-5.7-fx.xpi'):
-        logging.info('ReCaptcha solver detected, enabled')
-        # Must be the full path to an XPI file!
-        extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi")
-        driver.install_addon(extension_path, temporary=True)
-    else:
-        logging.info('ReCaptcha solver not found')
-
     while True:
-        checkout_reached = await checkout_api(driver, api_client, notifications)
+        in_stock = False
+        try:
+            logging.info(
+                f"Checking {promo_locale} availability for {target_gpu['name']} using API...")
+            status = await api_client.check_availability(target_id)
+            logging.info(f'Inventory status for {target_id}: {status}')
+            in_stock = status != 'PRODUCT_INVENTORY_OUT_OF_STOCK'
+        except LookupError:
+            logging.error(
+                f'Failed to get inventory status for {target_id}, updating product ID...')
+            target_id = None
+            while target_id is None:
+                target_id = await api_client.get_product_id()
+                if target_id is None:
+                    logging.error(
+                        f"Failed to locate product ID for {target_gpu['name']}, trying again...")
+                    sleep(timeout)
+                else:
+                    logging.info(
+                        f"Found product ID for {target_gpu['name']}: {target_id}")
+                    product_ids[promo_locale][target_gpu_name] = target_id
+                    logging.info('Updating product ID file...')
+                    update_sku_file(product_ids)
+        except SystemError as ex:
+            logging.error(
+                f'Internal API error, {type(ex).__name__}: ' + ','.join(ex.args))
 
-        if checkout_reached:
+        if in_stock:
+            logging.info(
+                f"Found available GPU: {target_gpu['name']}")
+            if notifications['availability']['enabled']:
+                notification_queue.put('availability')
+            store_token = None
+            while store_token is None:
+                try:
+                    logging.info('Fetching API token...')
+                    store_token = await api_client.get_token()
+                    logging.info('API Token: ' + store_token)
+                    logging.info('Overiding store cookies for driver...')
+                    store_cookies = api_client.get_cookies(const.STORE_URL)
+                    driver.get(const.STORE_URL)
+                    for key, value in store_cookies.items():
+                        driver.add_cookie({'name': key, 'value': value})
+                except SystemError:
+                    logging.error('Failed to fetch API token, trying again...')
+
+            addded_to_cart = False
+            while not addded_to_cart:
+                try:
+                    logging.info('Calling add to cart API...')
+                    add_to_cart_response = await api_client.add_to_cart(store_token, target_id)
+                    addded_to_cart = True
+                    response = add_to_cart_response['message']
+                    logging.info(f'Add to cart response: {response}')
+                except Exception as ex:
+                    logging.error(
+                        f'Failed to add item to cart, {type(ex).__name__}: ' + ','.join(ex.args))
+
+            checkout_reached = False
+            while not checkout_reached:
+                try:
+                    logging.info('Going to checkout page...')
+                    driver.get(const.CHECKOUT_URL)
+                    checkout_reached = True
+                    if notifications['add-to-basket']['enabled']:
+                        driver.save_screenshot(const.SCREENSHOT_FILE)
+                        notification_queue.put('add-to-basket')
+                except (TimeoutException, WebDriverException):
+                    logging.error(
+                        'Failed to load checkout page, trying again...')
+
             if payment_method == 'credit-card':
-                checkout.checkout_guest(
-                    driver, timeout, customer, auto_submit)
+                checkout.checkout_guest(driver, timeout, customer, auto_submit)
             else:
                 checkout.checkout_paypal(driver, timeout),
 

@@ -44,4 +44,11 @@ def prepare_sniper_profile(default_profile_path):
 def create():
     default_profile_path = get_default_profile()
     profile = prepare_sniper_profile(default_profile_path)
-    return webdriver.Firefox(firefox_profile=profile, executable_path=GeckoDriverManager().install())
+    driver = webdriver.Firefox(firefox_profile=profile, executable_path=GeckoDriverManager().install())
+    if os.path.isfile('./recaptcha_solver-5.7-fx.xpi'):
+        logging.info('ReCaptcha solver detected, enabled')
+        extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi")
+        driver.install_addon(extension_path, temporary=True)
+    else:
+        logging.info('ReCaptcha solver not found')
+    return driver

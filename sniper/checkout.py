@@ -12,8 +12,8 @@ try:
     from selenium.webdriver.common.by import By
 except Exception:
     logging.error(
-        'Could not import all required modules. '\
-        'Please run the following command again:\n\n'\
+        'Could not import all required modules. '
+        'Please run the following command again:\n\n'
         '\tpipenv install\n')
     exit()
 
@@ -25,16 +25,9 @@ def scroll_to(driver, element):
         'arguments[0].scrollIntoView({block: "center"})', element)
 
 
-def get_product_page(driver, promo_locale, gpu, anticache=False):
-    anticache_key = ''.join(random.choice(string.ascii_lowercase)
-                            for i in range(5))
-    anticache_value = random.randint(0, 9999)
-    anticache_query = f'?{anticache_key}={anticache_value}'
-    full_url = f"https://www.nvidia.com/{promo_locale}{gpu['url']}"
-    if anticache:
-        full_url += anticache_query
+def get_product_page(driver, promo_locale, gpu):
     try:
-        driver.get(full_url)
+        driver.get(f"https://www.nvidia.com/{promo_locale}{gpu['url']}")
         return True
     except (TimeoutException, WebDriverException):
         return False
@@ -87,13 +80,13 @@ def fill_out_form(driver, timeout, customer):
                 if customer['shipping']['backup-speed']:
                     logging.info('Continuing with default speed')
                 else:
-                    logging.info('User opted to stop if shipping speed not found.')
+                    logging.info(
+                        'User opted to stop if shipping speed not found.')
                     exit()
             else:
                 logging.warning(
-                    'data/customer.json missing "backup-speed" option under "shipping", '\
+                    'data/customer.json missing "backup-speed" option under "shipping", '
                     'continuing with default speed')
-                   
 
         shipping_expanded = False
         while not shipping_expanded:
@@ -145,7 +138,8 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['card'])
 
     month_select = Select(driver.find_element_by_id('expirationDateMonth'))
-    month_select.select_by_value(customer['credit']['expiration']['month'].lstrip('0'))
+    month_select.select_by_value(
+        customer['credit']['expiration']['month'].lstrip('0'))
 
     year_select = Select(driver.find_element_by_id('expirationDateYear'))
     year_select.select_by_value(customer['credit']['expiration']['year'])
