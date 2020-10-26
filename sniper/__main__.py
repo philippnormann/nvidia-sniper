@@ -71,17 +71,16 @@ def read_config():
 async def main():
     colorama.init()
     print(const.HEADER)
-
-    notification_config, customer = read_config()
-
-    driver = webdriver.create()
-    user_agent = driver.execute_script('return navigator.userAgent;')
-
     log_format = '%(asctime)s nvidia-sniper: %(message)s'
     fh = logging.FileHandler('sniper.log', encoding='utf-8')
     sh = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO,
                         format=log_format, handlers=[fh, sh])
+
+    notification_config, customer = read_config()
+
+    driver = webdriver.create()
+    user_agent = driver.execute_script('return navigator.userAgent;')
 
     gpu_data = read_json(data_path / 'gpus.json')
     target_gpu_name, _ = pick(list(gpu_data.keys()),
