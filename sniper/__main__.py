@@ -150,6 +150,10 @@ async def main():
                     notification_queue.put('api-up')
             logging.info(f'Inventory status for {target_id}: {status}')
             in_stock = status != 'PRODUCT_INVENTORY_OUT_OF_STOCK'
+        except PermissionError:
+            logging.error(
+                f'Access to inventory API was denied, trying again...')
+            sleep(timeout)
         except LookupError:
             logging.error(
                 f'Failed to get inventory status for {target_id}, updating product ID...')

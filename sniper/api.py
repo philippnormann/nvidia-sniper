@@ -25,10 +25,12 @@ class Client():
             if response.status == 200:
                 json_resp = await response.json()
                 return json_resp['products']['product'][0]['inventoryStatus']['status']
+            elif response.status == 403:
+                raise(PermissionError(response.status, await response.text()))
             elif 400 <= response.status < 500:
-                raise(LookupError(await response.text()))
+                raise(LookupError(response.status, await response.text()))
             elif 500 <= response.status < 600:
-                raise(SystemError(await response.text()))
+                raise(SystemError(response.status, await response.text()))
 
     async def get_product_id(self):
         full_url = f"https://www.nvidia.com/{self.promo_locale}{self.target_gpu['url']}"
