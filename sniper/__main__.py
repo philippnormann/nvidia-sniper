@@ -118,6 +118,7 @@ async def main():
     promo_locale = locales[locale]['PromoLocale'].replace('_', '-').lower()
     api_client = api.Client(user_agent, promo_locale,
                             dr_locale, api_currency, target_gpu)
+    api_up = True
 
     product_ids = read_json(data_path / 'skus.json')
     target_id = product_ids[promo_locale][target_gpu_name]
@@ -144,6 +145,10 @@ async def main():
             logging.info(
                 f"Checking {promo_locale} availability for {target_gpu['name']} using API...")
             status = await api_client.check_availability(target_id)
+            if not api_up:
+                api_up = True
+                if notifications['api-up']['enabled']:
+                    notification_queue.put('api-up')
             logging.info(f'Inventory status for {target_id}: {status}')
             in_stock = status != 'PRODUCT_INVENTORY_OUT_OF_STOCK'
         except LookupError:
@@ -165,6 +170,10 @@ async def main():
         except SystemError as ex:
             logging.error(
                 f'Internal API error, {type(ex).__name__}: ' + ','.join(ex.args))
+            if api_up:
+                api_up = False
+                if notifications['api-down']['enabled']:
+                    notification_queue.put('api-down')
 
         if in_stock:
             logging.info(
@@ -203,9 +212,9 @@ async def main():
                     logging.info('Going to checkout page...')
                     driver.get(const.CHECKOUT_URL)
                     checkout_reached = True
-                    if notifications['add-to-basket']['enabled']:
+                    if notifications['add-to-cart']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
-                        notification_queue.put('add-to-basket')
+                        notification_queue.put('add-to-cart')
                 except (TimeoutException, WebDriverException):
                     logging.error(
                         'Failed to load checkout page, trying again...')
