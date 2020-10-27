@@ -233,12 +233,12 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
         logging.info('Skipping address check...')
         driver.find_element(By.CLASS_NAME, 'dr_error')
         skip_address_check(driver, customer, timeout)
+        logging.info('Moving onto order summary page')
+        driver.find_element(By.ID, 'selectionButton').click()
+        select_shipping_speed(driver, timeout, customer)
     except NoSuchElementException:
         pass
 
-    driver.find_element(By.ID, 'selectionButton').click()
-    logging.info('Moving onto order summary page')
-    select_shipping_speed(driver, timeout, customer)
 
 
 def checkout_paypal(driver, timeout):
