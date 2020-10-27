@@ -43,6 +43,7 @@ RECAPTCHA_BOX_XPATH = "//span[@id='recaptcha-anchor']"
 STORE_HOST = 'store.nvidia.com'
 STORE_URL = f'https://{STORE_HOST}/store'
 
+CART_URL = f'{STORE_URL}/nvidia/cart'
 TOKEN_URL = f'{STORE_URL}/nvidia/SessionToken'
 CHECKOUT_URL = f'{STORE_URL}?Action=DisplayHGOP2LandingPage&SiteID=nvidia'
 

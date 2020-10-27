@@ -35,7 +35,6 @@ def get_product_page(driver, promo_locale, gpu):
 
 
 def fill_out_shipping(driver, timeout, customer):
-    logging.info('Filling out shipping details...')
     shipping_expanded = False
     while not shipping_expanded:
         try:
@@ -84,7 +83,7 @@ def fill_out_shipping(driver, timeout, customer):
 
 
 def fill_out_form(driver, timeout, customer):
-    logging.info('Filling out form...')
+    logging.info('Filling out checkout form...')
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -214,14 +213,13 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
         except TimeoutException:
             logging.info(
                 'Timed out waiting for checkout button to load, trying again...')
-            driver.get('https://store.nvidia.com/store/nvidia/cart')
+            driver.get(const.CART_URL)
 
     fill_out_form(driver, timeout, customer)
     driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
     driver.find_element(By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
 
     try:
-        logging.info('Skipping address check...')
         driver.find_element(By.CLASS_NAME, 'dr_error')
         skip_address_check(driver)
     except NoSuchElementException:
@@ -242,4 +240,4 @@ def checkout_paypal(driver, timeout):
         except TimeoutException:
             logging.info(
                 'Timed out waiting for PayPal button to load, trying again...')
-            driver.get('https://store.nvidia.com/store/nvidia/cart')
+            driver.get(const.CART_URL)
