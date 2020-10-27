@@ -11,26 +11,31 @@ try:
     from webdriver_manager.firefox import GeckoDriverManager
 except Exception:
     logging.error(
-        'Could not import all required modules. '\
-        'Please run the following command again:\n\n'\
+        'Could not import all required modules. '
+        'Please run the following command again:\n\n'
         '\tpipenv install\n')
     exit()
 
-def get_default_profile():
+
+def get_profile_path():
     if platform == 'linux' or platform == 'linux2':
-        mozilla_profile = Path(os.getenv('HOME')) / '.mozilla' / 'firefox'
+        profile_path = Path(os.getenv('HOME')) / '.mozilla' / 'firefox'
     elif platform == 'darwin':
-        mozilla_profile = Path(os.getenv('HOME')) / \
+        profile_path = Path(os.getenv('HOME')) / \
             'Library' / 'Application Support' / 'Firefox'
     elif platform == 'win32':
-        mozilla_profile = Path(os.getenv('APPDATA')) / 'Mozilla' / 'Firefox'
-    if not mozilla_profile.exists():
-        raise FileNotFoundError("Mozilla profile doesn't exist and/or can't be located on this machine.")
+        profile_path = Path(os.getenv('APPDATA')) / 'Mozilla' / 'Firefox'
+    if not profile_path.exists():
+        raise FileNotFoundError(
+            "Mozilla profile doesn't exist and/or can't be located on this machine.")
+    return profile_path
 
-    mozilla_profile_ini = mozilla_profile / 'profiles.ini'
+
+def get_default_profile(profile_path):
+    mozilla_profile_ini = profile_path / 'profiles.ini'
     profile = configparser.ConfigParser()
     profile.read(mozilla_profile_ini)
-    return mozilla_profile / profile.get('Profile0', 'Path')
+    return profile.get('Profile0', 'Path')
 
 
 def prepare_sniper_profile(default_profile_path):
@@ -42,13 +47,16 @@ def prepare_sniper_profile(default_profile_path):
 
 
 def create():
-    default_profile_path = get_default_profile()
-    profile = prepare_sniper_profile(default_profile_path)
-    driver = webdriver.Firefox(firefox_profile=profile, executable_path=GeckoDriverManager().install())
+    profile_path = get_profile_path()
+    default_profile = get_default_profile(profile_path)
+    logging.info(f'Launching Firefox using default profile: {default_profile}')
+    profile = prepare_sniper_profile(profile_path / default_profile)
+    driver = webdriver.Firefox(
+        firefox_profile=profile, executable_path=GeckoDriverManager().install())
     if os.path.isfile('./recaptcha_solver-5.7-fx.xpi'):
-        logging.info('ReCaptcha solver detected, enabled')
+        logging.info('ReCaptcha solver extension detected and installed')
         extension_path = os.path.abspath("recaptcha_solver-5.7-fx.xpi")
         driver.install_addon(extension_path, temporary=True)
     else:
-        logging.info('ReCaptcha solver not found')
+        logging.info('ReCaptcha solver extension not found')
     return driver

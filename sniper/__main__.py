@@ -68,14 +68,22 @@ def read_config():
     return notification_config, customer
 
 
-async def main():
-    colorama.init()
-    print(const.HEADER)
-    log_format = '%(asctime)s nvidia-sniper: %(message)s'
+def setup_logging():
+    log_format = '%(asctime)s %(levelname)s: %(message)s'
     fh = logging.FileHandler('sniper.log', encoding='utf-8')
     sh = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO,
-                        format=log_format, handlers=[fh, sh])
+                        format=log_format, handlers=[fh, sh],
+                        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.getLogger('WDM').disabled = True
+    logging.getLogger('apprise').disabled = True
+    logging.getLogger('apprise.URLBase').disabled = True
+
+
+async def main():
+    colorama.init()
+    print(const.HEADER)
+    setup_logging()
 
     notification_config, customer = read_config()
 
