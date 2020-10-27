@@ -148,16 +148,15 @@ def skip_address_check(driver, customer, timeout):
             driver.find_element(By.ID, 'billingAddressOptionRow1').click()
     except KeyError:
         driver.find_element(By.ID, 'billingAddressOptionRow1').click()
-
     if 'shipping' in customer:
         try:
             if customer['shipping']['force']:
                 driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
-            else:
-                driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
         except KeyError:
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-    driver.find_element(By.ID, 'selectionButton').click()
+        WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.ID, 'selectionButton')))
+        driver.find_element(By.ID, 'selectionButton').click()
+        logging.info('Moving onto payment page')
 
 
 def select_shipping_speed(driver, timeout, customer):
@@ -180,12 +179,14 @@ def select_shipping_speed(driver, timeout, customer):
                 'data/customer.json missing "backup-speed" option under "shipping", '
                 'continuing with default speed')
     except KeyError:
-        logging.warning('Could not find shipping parameter in customer.json')
+        logging.warning('Could not find shipping param in customer.json')
         try:
             logging.info('Trying shippingOptionID2')
+            WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.ID, 'shippingOptionID2')))
             driver.find_element((By.ID, 'shippingOptionID2')).click()
-        except:
-            logging.warning('Could not select shippingOptionID2')
+        except TimeoutException:
+            logging.info('Could not select shippingOptionID2')
             logging.info('Continuing with default speed')
 
 
