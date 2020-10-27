@@ -156,13 +156,6 @@ def skip_address_check(driver, customer, timeout):
 
 
 def select_shipping_speed(driver, timeout, customer):
-    def select_shipping_option_two():
-        try:
-            logging.info('Trying shippingOptionID2')
-            driver.find_element(By.ID, 'shippingOptionID2').click()
-        except TimeoutException:
-            logging.info('Could not select shippingOptionID2')
-            logging.info('Continuing with default speed')
     try:
         shipping_speed = customer['shipping']['speed']
         driver.find_element(By.ID, shipping_speed).click()
@@ -170,7 +163,7 @@ def select_shipping_speed(driver, timeout, customer):
         logging.warning(f'Could not find shipping speed {shipping_speed}')
         if 'backup-speed' in customer['shipping']:
             if customer['shipping']['backup-speed']:
-                select_shipping_option_two()
+		logging.info('continuing with default speed')
             else:
                 logging.info(
                     'User opted to stop if shipping speed not found.')
@@ -184,7 +177,6 @@ def select_shipping_speed(driver, timeout, customer):
         select_shipping_option_two()
     except NoSuchElementException:
         logging.info(f'Error while attempting to interact with element {shipping_speed}. Continuing with default speed')
-        select_shipping_option_two()
 
 
 def click_recaptcha(driver, timeout):
