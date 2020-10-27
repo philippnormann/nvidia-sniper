@@ -163,7 +163,7 @@ def select_shipping_speed(driver, timeout, customer):
         logging.warning(f'Could not find shipping speed {shipping_speed}')
         if 'backup-speed' in customer['shipping']:
             if customer['shipping']['backup-speed']:
-		logging.info('continuing with default speed')
+                logging.info('continuing with default speed')
             else:
                 logging.info(
                     'User opted to stop if shipping speed not found.')
@@ -174,7 +174,7 @@ def select_shipping_speed(driver, timeout, customer):
                 'continuing with default speed')
     except KeyError:
         logging.warning('Could not find shipping param in customer.json')
-        select_shipping_option_two()
+        logging.info('continuing with default speed.')
     except NoSuchElementException:
         logging.info(f'Error while attempting to interact with element {shipping_speed}. Continuing with default speed')
 
