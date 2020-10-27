@@ -201,6 +201,7 @@ def click_recaptcha(driver, timeout):
 
 
 def submit_order(driver, timeout):
+    driver.maximize_window()
     while  True:
         try:
             submit_clickable = EC.element_to_be_clickable(
