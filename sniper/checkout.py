@@ -137,17 +137,24 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['code'])
 
 
-def skip_address_check(driver, customer):
-    if 'force' in customer['billing']:
+def skip_address_check(driver, customer, timeout):
+    radio_button = EC.element_to_be_clickable((By.ID, 'billingAddressOptionRow1'))
+    WebDriverWait(driver, timeout).until(radio_button)
+    try:
         if customer['billing']['force']:
+            driver.find_element(By.ID, 'billingAddressOptionRow2').click()
+        else:
             driver.find_element(By.ID, 'billingAddressOptionRow1').click()
-    else:
-        driver.find_element(By.ID, 'billingAddressOptionRow2').click()
-    if 'force' in customer['shipping']:
+    except KeyError:
+        driver.find_element(By.ID, 'billingAddressOptionRow1').click()
+
+    try:
         if customer['shipping']['force']:
+            driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+        else:
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-    else:
-        driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+    except KeyError:
+        driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
 
@@ -224,7 +231,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     try:
         logging.info('Skipping address check...')
         driver.find_element(By.CLASS_NAME, 'dr_error')
-        skip_address_check(driver, customer)
+        skip_address_check(driver, customer, timeout)
     except NoSuchElementException:
         pass
 
