@@ -23,6 +23,7 @@ except Exception:
 
 from pathlib import Path
 from time import sleep
+from sys import platform
 
 import sniper.api as api
 import sniper.checkout as checkout
@@ -83,10 +84,15 @@ async def main():
 
     driver = webdriver.create()
 
+    ctrl_cmd = None
+    if platform == 'darwin':
+        ctrl_cmd = Keys.COMMAND
+    else:
+        ctrl_cmd = Keys.CONTROL
     driver.get('https://google.com')
     actions = ActionChains(driver)
     about = driver.find_element_by_class_name('MV3Tnb')
-    actions.key_down(Keys.CONTROL).click(about).key_up(Keys.CONTROL).perform()
+    actions.key_down(ctrl_cmd).click(about).key_up(ctrl_cmd).perform()
     driver.switch_to.window(driver.window_handles[-1])
     driver.get("https://gmail.com")
     driver.switch_to.window(driver.window_handles[0])
