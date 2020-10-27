@@ -8,6 +8,7 @@ try:
     import colorama
 
     from pick import pick
+    from selenium.webdriver import ActionChains
     from selenium.webdriver.common.by import By
     from selenium.webdriver.common.keys import Keys
     from selenium.webdriver.support.ui import WebDriverWait
@@ -81,6 +82,15 @@ async def main():
     notification_config, customer = read_config()
 
     driver = webdriver.create()
+
+    driver.get('https://google.com')
+    actions = ActionChains(driver)
+    about = driver.find_element_by_class_name('MV3Tnb')
+    actions.key_down(Keys.CONTROL).click(about).key_up(Keys.CONTROL).perform()
+    driver.switch_to.window(driver.window_handles[-1])
+    driver.get("https://gmail.com")
+    driver.switch_to.window(driver.window_handles[0])
+
     user_agent = driver.execute_script('return navigator.userAgent;')
 
     gpu_data = read_json(data_path / 'gpus.json')
@@ -122,10 +132,6 @@ async def main():
 
     product_ids = read_json(data_path / 'skus.json')
     target_id = product_ids[promo_locale][target_gpu_name]
-
-    driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
-    driver.get('https://gmail.com')
-    driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + Keys.TAB)
 
     logging.info('|---------------------------|')
     logging.info('| Starting Nvidia Sniper 🎯 |')
