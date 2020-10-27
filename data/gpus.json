@@ -13,7 +13,7 @@
     },
     "titan-rtx": {
         "name": "NVIDIA TITAN RTX",
-        "url": "/deep-learning-ai/products/titan-rtx"
+        "url": "/titan/titan-rtx/"
     },
     "rtx-2080-super": {
         "name": "GeForce RTX 2080 Super",
@@ -26,5 +26,9 @@
     "rtx-2060-super": {
         "name": "GeForce RTX 2060 Super",
         "url": "/geforce/graphics-cards/rtx-2060-super"
+    },
+    "expensive-shirt": {
+        "name": "Expensive Shirt (Test Product)",
+        "url": "/geforce/graphics-cards/30-series/"
     }
 }

@@ -1,102 +1,82 @@
 {
-    "en-zz": {
-        "DRlocale": "en_us",
-        "apiCurrency": "USD",
-        "region": "us"
-    },
     "en-ca": {
         "DRlocale": "en_us",
         "apiCurrency": "USD",
-        "region": "us"
+        "PromoLocale": "en_US"
     },
     "en-us": {
         "DRlocale": "en_us",
         "apiCurrency": "USD",
-        "region": "us"
+        "PromoLocale": "en_US"
     },
     "fr-fr": {
         "DRlocale": "fr_fr",
         "apiCurrency": "EUR",
-        "region": "fr"
+        "PromoLocale": "fr_FR"
     },
     "de-de": {
         "DRlocale": "de_de",
         "apiCurrency": "EUR",
-        "region": "de"
+        "PromoLocale": "de_DE"
     },
     "en-gb": {
         "DRlocale": "en_gb",
         "apiCurrency": "GBP",
-        "region": "gb"
+        "PromoLocale": "en_GB"
     },
     "es-es": {
         "DRlocale": "es_es",
         "apiCurrency": "EUR",
-        "region": "es"
+        "PromoLocale": "es_ES"
     },
     "it-it": {
         "DRlocale": "it_it",
         "apiCurrency": "EUR",
-        "region": "it"
+        "PromoLocale": "it_IT"
     },
     "pl-pl": {
         "DRlocale": "pl_pl",
         "apiCurrency": "PLN",
-        "region": "pl"
+        "PromoLocale": "pl_PL"
     },
     "nb-no": {
         "DRlocale": "no_no",
         "apiCurrency": "NOK",
-        "region": "no"
+        "PromoLocale": "nb_NO"
     },
     "sv-se": {
         "DRlocale": "sv_se",
         "apiCurrency": "SEK",
-        "region": "se"
+        "PromoLocale": "sv_SE"
     },
     "da-dk": {
         "DRlocale": "en_gb",
         "apiCurrency": "DKK",
-        "region": "dk"
+        "PromoLocale": "da_DK"
     },
     "fr-be": {
         "DRlocale": "fr_fr",
         "apiCurrency": "EUR",
-        "region": "be"
+        "PromoLocale": "fr_BE"
     },
     "de-at": {
         "DRlocale": "de_de",
         "apiCurrency": "EUR",
-        "region": "at"
+        "PromoLocale": "de_AT"
     },
     "cs-cz": {
         "DRlocale": "en_gb",
         "apiCurrency": "CZK",
-        "region": "cz"
+        "PromoLocale": "cs_CZ"
     },
     "fi-fi": {
         "DRlocale": "en_gb",
         "apiCurrency": "EUR",
-        "region": "fi"
+        "PromoLocale": "fi_FI"
     },
     "nl-nl": {
         "DRlocale": "nl_nl",
         "apiCurrency": "EUR",
-        "region": "nl"
-    },
-    "ru-ru": {
-        "DRlocale": "ru_ru",
-        "apiCurrency": "RUB",
-        "region": "ru"
-    },
-    "en-in": {
-        "DRlocale": "en_in",
-        "apiCurrency": "INR",
-        "region": "in"
-    },
-    "pt-pt": {
-        "DRlocale": "en_gb",
-        "apiCurrency": "EUR",
-        "region": "pt"
+        "PromoLocale": "nl_NL"
     }
 }

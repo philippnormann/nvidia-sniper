@@ -1,3 +1,4 @@
+import sys
 import logging
 import random
 import string
@@ -12,8 +13,8 @@ try:
     from selenium.webdriver.common.by import By
 except Exception:
     logging.error(
-        'Could not import all required modules. '\
-        'Please run the following command again:\n\n'\
+        'Could not import all required modules. '
+        'Please run the following command again:\n\n'
         '\tpipenv install\n')
     exit()
 
@@ -25,83 +26,65 @@ def scroll_to(driver, element):
         'arguments[0].scrollIntoView({block: "center"})', element)
 
 
-def get_product_page(driver, locale, gpu, anticache=False):
-    anticache_key = ''.join(random.choice(string.ascii_lowercase)
-                            for i in range(5))
-    anticache_value = random.randint(0, 9999)
-    anticache_query = f'?{anticache_key}={anticache_value}'
-    full_url = f"https://www.nvidia.com/{locale}{gpu['url']}"
-    if anticache:
-        full_url += anticache_query
+def get_product_page(driver, promo_locale, gpu):
     try:
-        driver.get(full_url)
+        driver.get(f"https://www.nvidia.com/{promo_locale}{gpu['url']}")
         return True
     except (TimeoutException, WebDriverException):
         return False
 
 
-def check_availability(driver, timeout):
-    try:
-        add_to_basket_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, const.ADD_TO_BASKET_SELECTOR))
-        WebDriverWait(driver, timeout).until(add_to_basket_clickable)
-        return True
-    except TimeoutException:
-        return False
-
-
-def add_to_basket(driver, timeout):
-    try:
-        add_to_basket_btn = driver.find_element(
-            By.CSS_SELECTOR, const.ADD_TO_BASKET_SELECTOR)
-        scroll_to(driver, add_to_basket_btn)
-        add_to_basket_btn.click()
-        return True
-    except (NoSuchElementException, ElementClickInterceptedException):
-        return False
-
-
-def to_checkout(driver, timeout, locale, notification_queue):
-    try:
+def fill_out_shipping(driver, timeout, customer):
+    logging.info('Filling out shipping details...')
+    shipping_expanded = False
+    while not shipping_expanded:
         try:
-            cart_btn = driver.find_element(
-                By.CLASS_NAME, const.CART_ICON_CLASS).click()
-            if cart_btn is not None:
-                cart_btn.click()
-        except (ElementClickInterceptedException, ElementNotInteractableException):
-            pass
+            driver.find_element(By.ID, 'shippingName1').send_keys(
+                customer['shipping']['first-name'])
+            shipping_expanded = True
+        except ElementNotInteractableException:
+            expand_shipping_button = driver.find_element(
+                By.ID, 'shippingDifferentThanBilling')
+            scroll_to(driver, expand_shipping_button)
+            expand_shipping_button.click()
+            shipping_visible = EC.visibility_of_element_located(
+                (By.ID, 'shippingName1'))
+            WebDriverWait(driver, timeout).until(shipping_visible)
 
-        checkout_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, const.CHECKOUT_BUTTON_SELECTOR))
-        WebDriverWait(driver, timeout).until(checkout_clickable)
-        checkout_btn = driver.find_element(
-            By.CSS_SELECTOR, const.CHECKOUT_BUTTON_SELECTOR)
-        checkout_btn.click()
+    driver.find_element(By.ID, 'shippingName2').send_keys(
+        customer['shipping']['last-name'])
 
-        logging.error('Trying to click pre checkout reCAPTCHA!')
-        # Click CAPTCHA checkbox once and continue
-        try:
-            click_recaptcha(driver, timeout)
-        except NoSuchElementException:
-            pass
+    driver.find_element(By.ID, 'shippingAddress1').send_keys(
+        customer['shipping']['address-line-1'])
+    driver.find_element(By.ID, 'shippingAddress2').send_keys(
+        customer['shipping']['address-line-2'])
 
-        while True:
-            # Wait until checkout page is reached, in the worst case manual intervention is required
-            try:
-                WebDriverWait(driver, timeout).until(
-                    EC.url_contains(const.STORE_HOST))
-                return True
-            except TimeoutException:
-                logging.error(
-                    'Could not reach checkout page, manual intervention might be required!')
-                driver.save_screenshot(const.SCREENSHOT_FILE)
-                notification_queue.put('captcha-fail')
+    try:
+        driver.find_element(By.ID, 'shippingState')
+        state_select = Select(driver.find_element_by_id('shippingState'))
+        state_select.select_by_value(customer['shipping']['state'])
+    except NoSuchElementException:
+        pass
 
-    except (TimeoutException, NoSuchElementException):
-        return False
+    try:
+        driver.find_element(By.ID, 'shippingCountry')
+        country_select = Select(
+            driver.find_element_by_id('shippingCountry'))
+        country_select.select_by_value(customer['shipping']['country'])
+    except NoSuchElementException:
+        pass
+
+    driver.find_element(By.ID, 'shippingCity').send_keys(
+        customer['shipping']['city'])
+    driver.find_element(By.ID, 'shippingPostalCode').send_keys(
+        customer['shipping']['post-code'])
+
+    driver.find_element(By.ID, 'shippingPhoneNumber').send_keys(
+        customer['shipping']['phone'])
 
 
 def fill_out_form(driver, timeout, customer):
+    logging.info('Filling out form...')
     driver.find_element(By.ID, 'billingName1').send_keys(
         customer['billing']['first-name'])
     driver.find_element(By.ID, 'billingName2').send_keys(
@@ -138,75 +121,14 @@ def fill_out_form(driver, timeout, customer):
     driver.find_element(By.ID, 'verEmail').send_keys(
         customer['billing']['email'])
 
-    if 'shipping' in customer:
-        try:
-            shipping_speed = customer['shipping']['speed']
-            driver.find_element(By.ID, shipping_speed).click()
-        except Exception:
-            logging.warning(f'Could not find shipping speed {shipping_speed}')
-            if 'backup-speed' in customer['shipping']:
-                if customer['shipping']['backup-speed']:
-                    logging.info('Continuing with default speed')
-                else:
-                    logging.info('User opted to stop if shipping speed not found.')
-                    exit()
-            else:
-                logging.warning(
-                    'data/customer.json missing "backup-speed" option under "shipping", '\
-                    'continuing with default speed')
-                   
-
-        shipping_expanded = False
-        while not shipping_expanded:
-            try:
-                driver.find_element(By.ID, 'shippingName1').send_keys(
-                    customer['shipping']['first-name'])
-                shipping_expanded = True
-            except ElementNotInteractableException:
-                expand_shipping_button = driver.find_element(
-                    By.ID, 'shippingDifferentThanBilling')
-                scroll_to(driver, expand_shipping_button)
-                expand_shipping_button.click()
-                shipping_visible = EC.visibility_of_element_located(
-                    (By.ID, 'shippingName1'))
-                WebDriverWait(driver, timeout).until(shipping_visible)
-
-        driver.find_element(By.ID, 'shippingName2').send_keys(
-            customer['shipping']['last-name'])
-
-        driver.find_element(By.ID, 'shippingAddress1').send_keys(
-            customer['shipping']['address-line-1'])
-        driver.find_element(By.ID, 'shippingAddress2').send_keys(
-            customer['shipping']['address-line-2'])
-
-        try:
-            driver.find_element(By.ID, 'shippingState')
-            state_select = Select(driver.find_element_by_id('shippingState'))
-            state_select.select_by_value(customer['shipping']['state'])
-        except NoSuchElementException:
-            pass
-
-        try:
-            driver.find_element(By.ID, 'shippingCountry')
-            country_select = Select(
-                driver.find_element_by_id('shippingCountry'))
-            country_select.select_by_value(customer['shipping']['country'])
-        except NoSuchElementException:
-            pass
-
-        driver.find_element(By.ID, 'shippingCity').send_keys(
-            customer['shipping']['city'])
-        driver.find_element(By.ID, 'shippingPostalCode').send_keys(
-            customer['shipping']['post-code'])
-
-        driver.find_element(By.ID, 'shippingPhoneNumber').send_keys(
-            customer['shipping']['phone'])
+    fill_out_shipping(driver, timeout, customer)
 
     driver.find_element(By.ID, 'ccNum').send_keys(
         customer['credit']['card'])
 
     month_select = Select(driver.find_element_by_id('expirationDateMonth'))
-    month_select.select_by_value(customer['credit']['expiration']['month'].lstrip('0'))
+    month_select.select_by_value(
+        customer['credit']['expiration']['month'].lstrip('0'))
 
     year_select = Select(driver.find_element_by_id('expirationDateYear'))
     year_select.select_by_value(customer['credit']['expiration']['year'])
@@ -227,6 +149,27 @@ def skip_address_check(driver, customer):
     else:
         driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
     driver.find_element(By.ID, 'selectionButton').click()
+
+
+def select_shipping_speed(driver, timeout, customer):
+    try:
+        shipping_speed = customer['shipping']['speed']
+        WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((By.ID, shipping_speed)))
+        driver.find_element(By.ID, shipping_speed).click()
+    except TimeoutException:
+        logging.warning(f'Could not find shipping speed {shipping_speed}')
+        if 'backup-speed' in customer['shipping']:
+            if customer['shipping']['backup-speed']:
+                logging.info('Continuing with default speed')
+            else:
+                logging.info(
+                    'User opted to stop if shipping speed not found.')
+                sys.exit()
+        else:
+            logging.warning(
+                'data/customer.json missing "backup-speed" option under "shipping", '
+                'continuing with default speed')
 
 
 def click_recaptcha(driver, timeout):
@@ -257,6 +200,7 @@ def submit_order(driver, timeout):
 def checkout_guest(driver, timeout, customer, auto_submit=False):
     proceeded_to_form = False
     logging.info('Checking out as guest...')
+
     while not proceeded_to_form:
         try:
             WebDriverWait(driver, timeout).until(
@@ -278,10 +222,13 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     driver.find_element(By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
 
     try:
+        logging.info('Skipping address check...')
         driver.find_element(By.CLASS_NAME, 'dr_error')
         skip_address_check(driver, customer)
     except NoSuchElementException:
         pass
+
+    select_shipping_speed(driver, timeout, customer)
 
 
 def checkout_paypal(driver, timeout):

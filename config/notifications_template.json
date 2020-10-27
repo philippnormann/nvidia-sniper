@@ -8,7 +8,15 @@
             "message": "Quick, before it is gone! 🏃‍♂️",
             "enabled": true
         },
-        "add-to-basket": {
+        "api-down": {
+            "message": "API is down! ❌",
+            "enabled": true
+        },
+        "api-up": {
+            "message": "API is up! ✅",
+            "enabled": true
+        },
+        "add-to-cart": {
             "message": "Locked and loaded! 🔫",
             "enabled": true
         },
