@@ -181,7 +181,12 @@ def select_shipping_speed(driver, timeout, customer):
                 'continuing with default speed')
     except KeyError:
         logging.warning('Could not find shipping parameter in customer.json')
-        logging.info('Continuing with default speed')
+        try:
+            logging.info('Trying shippingOptionID2')
+            driver.find_element((By.ID, 'shippingOptionID2')).click()
+        except:
+            logging.warning('Could not select shippingOptionID2')
+            logging.info('Continuing with default speed')
 
 
 def click_recaptcha(driver, timeout):
