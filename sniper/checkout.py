@@ -121,7 +121,8 @@ def fill_out_form(driver, timeout, customer):
     driver.find_element(By.ID, 'verEmail').send_keys(
         customer['billing']['email'])
 
-    fill_out_shipping(driver, timeout, customer)
+    if 'shipping' in customer:
+        fill_out_shipping(driver, timeout, customer)
 
     driver.find_element(By.ID, 'ccNum').send_keys(
         customer['credit']['card'])
@@ -148,13 +149,14 @@ def skip_address_check(driver, customer, timeout):
     except KeyError:
         driver.find_element(By.ID, 'billingAddressOptionRow1').click()
 
-    try:
-        if customer['shipping']['force']:
-            driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
-        else:
+    if 'shipping' in customer:
+        try:
+            if customer['shipping']['force']:
+                driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+            else:
+                driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
+        except KeyError:
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-    except KeyError:
-        driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
 
@@ -177,6 +179,9 @@ def select_shipping_speed(driver, timeout, customer):
             logging.warning(
                 'data/customer.json missing "backup-speed" option under "shipping", '
                 'continuing with default speed')
+    except KeyError:
+        logging.warning('Could not find shipping parameter in customer.json')
+        logging.info('Continuing with default speed')
 
 
 def click_recaptcha(driver, timeout):
