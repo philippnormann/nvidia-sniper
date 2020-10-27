@@ -82,9 +82,6 @@ async def main():
 
     driver = webdriver.create()
     user_agent = driver.execute_script('return navigator.userAgent;')
-    driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
-    driver.get('https://gmail.com')
-    driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + Keys.TAB)
 
     gpu_data = read_json(data_path / 'gpus.json')
     target_gpu_name, _ = pick(list(gpu_data.keys()),
@@ -125,6 +122,10 @@ async def main():
 
     product_ids = read_json(data_path / 'skus.json')
     target_id = product_ids[promo_locale][target_gpu_name]
+
+    driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
+    driver.get('https://gmail.com')
+    driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + Keys.TAB)
 
     logging.info('|---------------------------|')
     logging.info('| Starting Nvidia Sniper 🎯 |')
