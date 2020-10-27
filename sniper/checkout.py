@@ -139,8 +139,6 @@ def fill_out_form(driver, timeout, customer):
 
 
 def skip_address_check(driver, customer, timeout):
-    billing_option = EC.element_to_be_clickable((By.ID, 'billingAddressOptionRow1'))
-    WebDriverWait(driver, timeout).until(billing_option)
     try:
         if customer['billing']['force']:
             driver.find_element(By.ID, 'billingAddressOptionRow2').click()
@@ -148,34 +146,31 @@ def skip_address_check(driver, customer, timeout):
             driver.find_element(By.ID, 'billingAddressOptionRow1').click()
     except KeyError:
         driver.find_element(By.ID, 'billingAddressOptionRow1').click()
-    if 'shipping' in customer:
-        try:
-            shipping_option = EC.element_to_be_clickable((By.ID, 'shippingAddressOptionRow1'))
-            WebDriverWait(driver, timeout).until(shipping_option)
-            if customer['shipping']['force']:
-                driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
-            else:
-                driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-        except KeyError:
+    try:
+        if customer['shipping']['force']:
+            driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+        else:
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-        except TimeoutException:
-            pass
-    WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.ID, 'selectionButton')))
-    driver.find_element(By.ID, 'selectionButton').click()
-    logging.info('Moving onto order summary page')
+    except KeyError:
+        driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
 
 
 def select_shipping_speed(driver, timeout, customer):
+    def select_shipping_option_two():
+        try:
+            logging.info('Trying shippingOptionID2')
+            driver.find_element(By.ID, 'shippingOptionID2').click()
+        except TimeoutException:
+            logging.info('Could not select shippingOptionID2')
+            logging.info('Continuing with default speed')
     try:
         shipping_speed = customer['shipping']['speed']
-        WebDriverWait(driver, timeout).until(
-            EC.presence_of_element_located((By.ID, shipping_speed)))
         driver.find_element(By.ID, shipping_speed).click()
     except TimeoutException:
         logging.warning(f'Could not find shipping speed {shipping_speed}')
         if 'backup-speed' in customer['shipping']:
             if customer['shipping']['backup-speed']:
-                logging.info('Continuing with default speed')
+                select_shipping_option_two()
             else:
                 logging.info(
                     'User opted to stop if shipping speed not found.')
@@ -186,14 +181,10 @@ def select_shipping_speed(driver, timeout, customer):
                 'continuing with default speed')
     except KeyError:
         logging.warning('Could not find shipping param in customer.json')
-        try:
-            logging.info('Trying shippingOptionID2')
-            WebDriverWait(driver, timeout).until(
-                EC.element_to_be_clickable((By.ID, 'shippingOptionID2')))
-            driver.find_element(By.ID, 'shippingOptionID2').click()
-        except TimeoutException:
-            logging.info('Could not select shippingOptionID2')
-            logging.info('Continuing with default speed')
+        select_shipping_option_two()
+    except NoSuchElementException:
+        logging.info(f'Error while attempting to interact with element {shipping_speed}. Continuing with default speed')
+        select_shipping_option_two()
 
 
 def click_recaptcha(driver, timeout):
@@ -210,15 +201,16 @@ def click_recaptcha(driver, timeout):
 
 
 def submit_order(driver, timeout):
-    try:
-        submit_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR))
-        WebDriverWait(driver, timeout).until(submit_clickable)
-        driver.find_element(
-            By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
-        return True
-    except (ElementClickInterceptedException, TimeoutException):
-        return False
+    while  True:
+        try:
+            submit_clickable = EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR))
+            WebDriverWait(driver, timeout).until(submit_clickable)
+            driver.find_element(
+                By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
+            return True
+        except (ElementClickInterceptedException, TimeoutException):
+            logging.info('Waiting for the submit button to be activated')
 
 
 def checkout_guest(driver, timeout, customer, auto_submit=False):
@@ -252,6 +244,8 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     except NoSuchElementException:
         pass
 
+    driver.find_element(By.ID, 'selectionButton').click()
+    logging.info('Moving onto order summary page')
     select_shipping_speed(driver, timeout, customer)
 
 
