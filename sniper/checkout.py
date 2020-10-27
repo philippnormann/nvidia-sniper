@@ -139,8 +139,8 @@ def fill_out_form(driver, timeout, customer):
 
 
 def skip_address_check(driver, customer, timeout):
-    radio_button = EC.element_to_be_clickable((By.ID, 'billingAddressOptionRow1'))
-    WebDriverWait(driver, timeout).until(radio_button)
+    billing_option = EC.element_to_be_clickable((By.ID, 'billingAddressOptionRow1'))
+    WebDriverWait(driver, timeout).until(billing_option)
     try:
         if customer['billing']['force']:
             driver.find_element(By.ID, 'billingAddressOptionRow2').click()
@@ -150,13 +150,20 @@ def skip_address_check(driver, customer, timeout):
         driver.find_element(By.ID, 'billingAddressOptionRow1').click()
     if 'shipping' in customer:
         try:
+            shipping_option = EC.element_to_be_clickable((By.ID, 'shippingAddressOptionRow1'))
+            WebDriverWait(driver, timeout).until(shipping_option)
             if customer['shipping']['force']:
                 driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+            else:
+                driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
         except KeyError:
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
-        WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.ID, 'selectionButton')))
-        driver.find_element(By.ID, 'selectionButton').click()
-        logging.info('Moving onto payment page')
+        except TimeoutException:
+            pass
+        finally:
+            WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.ID, 'selectionButton')))
+            driver.find_element(By.ID, 'selectionButton').click()
+            logging.info('Moving onto order summary page')
 
 
 def select_shipping_speed(driver, timeout, customer):
