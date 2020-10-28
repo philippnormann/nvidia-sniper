@@ -158,6 +158,8 @@ def skip_address_check(driver, customer):
 def select_shipping_speed(driver, timeout, customer):
     try:
         shipping_speed = customer['shipping']['speed']
+        speed_button = EC.element_to_be_clickable((By.ID, shipping_speed))
+        WebDriverWait(driver, timeout).until(speed_button)
         driver.find_element(By.ID, shipping_speed).click()
     except TimeoutException:
         logging.warning(f'Could not find shipping speed {shipping_speed}')
@@ -235,6 +237,8 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
             skip_address_check(driver, customer)
     except NoSuchElementException:
         pass
+
+    select_shipping_speed(driver, timeout, customer)
 
 
 
