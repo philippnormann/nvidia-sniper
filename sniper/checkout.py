@@ -152,6 +152,7 @@ def skip_address_check(driver, customer):
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
     except KeyError:
         driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
+    driver.find_element(By.ID, 'selectionButton').click()
 
 
 def select_shipping_speed(driver, timeout, customer):
