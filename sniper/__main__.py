@@ -68,14 +68,22 @@ def read_config():
     return notification_config, customer
 
 
-async def main():
-    colorama.init()
-    print(const.HEADER)
-    log_format = '%(asctime)s nvidia-sniper: %(message)s'
+def setup_logging():
+    log_format = '%(asctime)s %(levelname)s: %(message)s'
     fh = logging.FileHandler('sniper.log', encoding='utf-8')
     sh = logging.StreamHandler(sys.stdout)
     logging.basicConfig(level=logging.INFO,
-                        format=log_format, handlers=[fh, sh])
+                        format=log_format, handlers=[fh, sh],
+                        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.getLogger('WDM').disabled = True
+    logging.getLogger('apprise').disabled = True
+    logging.getLogger('apprise.URLBase').disabled = True
+
+
+async def main():
+    colorama.init()
+    print(const.HEADER)
+    setup_logging()
 
     notification_config, customer = read_config()
 
@@ -192,7 +200,7 @@ async def main():
                     logging.info('API Token: ' + store_token)
                     logging.info('Overiding store cookies for driver...')
                     store_cookies = api_client.get_cookies(const.STORE_URL)
-                    driver.get(const.STORE_URL)
+                    driver.get(const.CART_URL)
                     for key, value in store_cookies.items():
                         driver.add_cookie({'name': key, 'value': value})
                 except SystemError:
@@ -201,7 +209,7 @@ async def main():
             addded_to_cart = False
             while not addded_to_cart:
                 try:
-                    logging.info('Calling add to cart API...')
+                    logging.info(f'Calling add to cart API for {target_id}...')
                     add_to_cart_response = await api_client.add_to_cart(store_token, target_id)
                     addded_to_cart = True
                     response = add_to_cart_response['message']
@@ -226,7 +234,7 @@ async def main():
             if payment_method == 'credit-card':
                 checkout.checkout_guest(driver, timeout, customer, auto_submit)
             else:
-                checkout.checkout_paypal(driver, timeout),
+                checkout.checkout_paypal(driver, timeout)
 
             logging.info('Checkout successful!')
             if notifications['checkout']['enabled']:
