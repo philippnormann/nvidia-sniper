@@ -137,7 +137,7 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['code'])
 
 
-def skip_address_check(driver, customer, timeout):
+def skip_address_check(driver, customer):
     try:
         if customer['billing']['force']:
             driver.find_element(By.ID, 'billingAddressOptionRow2').click()
@@ -231,7 +231,7 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     try:
         error = driver.find_element(By.CLASS_NAME, 'dr_error')
         if len(error.text) > 0:
-            skip_address_check(driver)
+            skip_address_check(driver, customer)
     except NoSuchElementException:
         pass
 
