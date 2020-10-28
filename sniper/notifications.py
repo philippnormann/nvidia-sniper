@@ -24,7 +24,7 @@ class Notifier():
 
     def send_notifications(self, notification_type):
         for name, service in self.config['services'].items():
-            logging.info(f'Sending notifications to {name}')
+            logging.info(f'Sending {notification_type} notification to {name}...')
             apobj = apprise.Apprise()
             apobj.add(service['url'])
             title = f"{notification_type.replace('-',' ').title()} - {self.gpu['name']}"
