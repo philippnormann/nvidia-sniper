@@ -109,7 +109,7 @@ async def enumerate_skus(locale, prefix):
                     locales[locale]['DRlocale'],
                     locales[locale]['apiCurrency'],
                     throttler, pbar))
-            await asyncio.gather(*tasks, return_exceptions=True)
+            await asyncio.gather(*tasks)
 
 
 async def main():
