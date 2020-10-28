@@ -220,8 +220,9 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     driver.find_element(By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
 
     try:
-        driver.find_element(By.CLASS_NAME, 'dr_error')
-        skip_address_check(driver)
+        error = driver.find_element(By.CLASS_NAME, 'dr_error')
+        if len(error.text) > 0:
+            skip_address_check(driver)
     except NoSuchElementException:
         pass
 
