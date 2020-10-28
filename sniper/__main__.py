@@ -8,7 +8,9 @@ try:
     import colorama
 
     from pick import pick
+    from selenium.webdriver import ActionChains
     from selenium.webdriver.common.by import By
+    from selenium.webdriver.common.keys import Keys
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
@@ -21,6 +23,7 @@ except Exception:
 
 from pathlib import Path
 from time import sleep
+from sys import platform
 
 import sniper.api as api
 import sniper.checkout as checkout
@@ -88,6 +91,20 @@ async def main():
     notification_config, customer = read_config()
 
     driver = webdriver.create()
+
+    ctrl_cmd = None
+    if platform == 'darwin':
+        ctrl_cmd = Keys.COMMAND
+    else:
+        ctrl_cmd = Keys.CONTROL
+    driver.get('https://google.com')
+    actions = ActionChains(driver)
+    about = driver.find_element_by_class_name('MV3Tnb')
+    actions.key_down(ctrl_cmd).click(about).key_up(ctrl_cmd).perform()
+    driver.switch_to.window(driver.window_handles[-1])
+    driver.get("https://gmail.com")
+    driver.switch_to.window(driver.window_handles[0])
+
     user_agent = driver.execute_script('return navigator.userAgent;')
 
     gpu_data = read_json(data_path / 'gpus.json')
