@@ -137,7 +137,7 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['code'])
 
 
-def skip_address_check(driver, customer, timeout):
+def skip_address_check(driver, customer):
     try:
         if customer['billing']['force']:
             driver.find_element(By.ID, 'billingAddressOptionRow2').click()
@@ -152,6 +152,7 @@ def skip_address_check(driver, customer, timeout):
             driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
     except KeyError:
         driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
+    driver.find_element(By.ID, 'selectionButton').click()
 
 
 def select_shipping_speed(driver, timeout, customer):
@@ -229,11 +230,9 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     driver.find_element(By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
 
     try:
-        driver.find_element(By.CLASS_NAME, 'dr_error')
-        skip_address_check(driver, customer, timeout)
-        logging.info('Moving onto order summary page')
-        driver.find_element(By.ID, 'selectionButton').click()
-        select_shipping_speed(driver, timeout, customer)
+        error = driver.find_element(By.CLASS_NAME, 'dr_error')
+        if len(error.text) > 0:
+            skip_address_check(driver, customer)
     except NoSuchElementException:
         pass
 

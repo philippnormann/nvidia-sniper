@@ -14,7 +14,11 @@ class Client():
         self.online = False
         self.dr_id = None
         self.session = aiohttp.ClientSession(
-            headers={'User-Agent': user_agent}, cookie_jar=aiohttp.CookieJar())
+            headers={
+                'User-Agent': user_agent,
+                'Connection': 'close'
+            },
+            cookie_jar=aiohttp.CookieJar())
 
     def get_cookies(self, host):
         cookies = self.session.cookie_jar.filter_cookies(host)
