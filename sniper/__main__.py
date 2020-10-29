@@ -5,9 +5,11 @@ import logging
 import queue
 import asyncio
 try:
+    import coloredlogs
     import colorama
 
     from pick import pick
+    from verboselogs import VerboseLogger
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
@@ -28,6 +30,8 @@ import sniper.constants as const
 import sniper.webdriver as webdriver
 import sniper.notifications as notify
 
+logger = VerboseLogger('root')
+
 src_path = Path(__file__).parent
 data_path = src_path.parent / 'data'
 config_path = src_path.parent / 'config'
@@ -47,43 +51,48 @@ def read_config():
     try:
         notification_config = read_json(config_path / 'notifications.json')
     except FileNotFoundError:
-        logging.error(
+        logger.critical(
             'Missing notification configuration file, copy the template to config/notifications.json and customize as described in the README to continue.')
         sys.exit()
     except json.decoder.JSONDecodeError:
-        logging.error(
+        logger.critical(
             'Error while parsing the notification configuration file, check config/notifications.json for syntax errors and fix them to continue.')
         sys.exit()
 
     try:
         customer = read_json(config_path / 'customer.json')
     except FileNotFoundError:
-        logging.error(
+        logger.critical(
             'Missing customer configuration file, copy the template to config/customers.json and customize as described in the README to continue.')
         sys.exit()
     except json.decoder.JSONDecodeError:
-        logging.error(
+        logger.critical(
             'Error while parsing the customer configuration file, check config/customer.json for syntax errors and fix them to continue.')
         sys.exit()
     return notification_config, customer
 
 
-def setup_logging():
+def setup_logger():
     log_format = '%(asctime)s %(levelname)s: %(message)s'
-    fh = logging.FileHandler('sniper.log', encoding='utf-8')
-    sh = logging.StreamHandler(sys.stdout)
-    logging.basicConfig(level=logging.INFO,
-                        format=log_format, handlers=[fh, sh],
-                        datefmt='%Y-%m-%d %H:%M:%S')
+    coloredlogs.install(level='DEBUG', fmt=log_format)
+
+    file_handler = logging.FileHandler('sniper.log', encoding='utf-8')
+    file_handler.setFormatter(logging.Formatter(log_format))
+    logging.getLogger().addHandler(file_handler)
+
     logging.getLogger('WDM').disabled = True
     logging.getLogger('apprise').disabled = True
+    logging.getLogger('asyncio').disabled = True
     logging.getLogger('apprise.URLBase').disabled = True
+    logging.getLogger('urllib3.connectionpool').disabled = True
+    logging.getLogger(
+        'selenium.webdriver.remote.remote_connection').disabled = True
 
 
 async def main():
     colorama.init()
     print(const.HEADER)
-    setup_logging()
+    setup_logger()
 
     notification_config, customer = read_config()
 
@@ -130,13 +139,13 @@ async def main():
     product_ids = read_json(data_path / 'skus.json')
     target_id = product_ids[promo_locale][target_gpu_name]
 
-    logging.info('|---------------------------|')
-    logging.info('| Starting Nvidia Sniper 🎯 |')
-    logging.info(f'|  Customer locale: {locale}   |')
-    logging.info(f'|    Nvidia locale: {promo_locale}   |')
-    logging.info(f'|        DR locale: {dr_locale}   |')
-    logging.info(f'|         Currency: {api_currency}     |')
-    logging.info('|---------------------------|')
+    logger.info('|---------------------------|')
+    logger.info('| Starting Nvidia Sniper 🎯 |')
+    logger.info(f'|  Customer locale: {locale}   |')
+    logger.info(f'|    Nvidia locale: {promo_locale}   |')
+    logger.info(f'|        DR locale: {dr_locale}   |')
+    logger.info(f'|         Currency: {api_currency}     |')
+    logger.info('|---------------------------|')
 
     if notifications['started']['enabled']:
         checkout.get_product_page(driver, promo_locale, target_gpu)
@@ -149,38 +158,38 @@ async def main():
     while True:
         in_stock = False
         try:
-            logging.info(
+            logger.info(
                 f"Checking {promo_locale} availability for {target_gpu['name']} using API...")
             status = await api_client.check_availability(target_id)
             if not api_up:
                 api_up = True
                 if notifications['api-up']['enabled']:
                     notification_queue.put('api-up')
-            logging.info(f'Inventory status for {target_id}: {status}')
+            logger.info(f'Inventory status for {target_id}: {status}')
             in_stock = status != 'PRODUCT_INVENTORY_OUT_OF_STOCK'
         except PermissionError:
-            logging.error(
+            logger.error(
                 f'Access to inventory API was denied, clearing cookies and trying again...')
             api_client.session.cookie_jar.clear()
             sleep(timeout)
         except LookupError:
-            logging.error(
+            logger.error(
                 f'Failed to get inventory status for {target_id}, updating product ID...')
             target_id = None
             while target_id is None:
                 target_id = await api_client.get_product_id()
                 if target_id is None:
-                    logging.error(
-                        f"Failed to locate product ID for {target_gpu['name']}, trying again...")
+                    logger.warning(
+                        f"Product ID for {target_gpu['name']} is not available yet, refreshing product page...")
                     sleep(timeout)
                 else:
-                    logging.info(
+                    logger.success(
                         f"Found product ID for {target_gpu['name']}: {target_id}")
                     product_ids[promo_locale][target_gpu_name] = target_id
-                    logging.info('Updating product ID file...')
+                    logger.info('Updating product ID file...')
                     update_sku_file(product_ids)
         except SystemError as ex:
-            logging.error(
+            logger.error(
                 f'Internal API error, {type(ex).__name__}: ' + ','.join(ex.args))
             if api_up:
                 api_up = False
@@ -188,47 +197,47 @@ async def main():
                     notification_queue.put('api-down')
 
         if in_stock:
-            logging.info(
+            logger.success(
                 f"Found available GPU: {target_gpu['name']}")
             if notifications['availability']['enabled']:
                 notification_queue.put('availability')
             store_token = None
             while store_token is None:
                 try:
-                    logging.info('Fetching API token...')
+                    logger.info('Fetching API token...')
                     store_token = await api_client.get_token()
-                    logging.info('API Token: ' + store_token)
-                    logging.info('Overiding store cookies for driver...')
+                    logger.success('API Token: ' + store_token)
+                    logger.info('Overiding store cookies for driver...')
                     store_cookies = api_client.get_cookies(const.STORE_URL)
                     driver.get(const.CART_URL)
                     for key, value in store_cookies.items():
                         driver.add_cookie({'name': key, 'value': value})
                 except SystemError:
-                    logging.error('Failed to fetch API token, trying again...')
+                    logger.error('Failed to fetch API token, trying again...')
 
             addded_to_cart = False
             while not addded_to_cart:
                 try:
-                    logging.info(f'Calling add to cart API for {target_id}...')
+                    logger.info(f'Calling add to cart API for {target_id}...')
                     add_to_cart_response = await api_client.add_to_cart(store_token, target_id)
                     addded_to_cart = True
                     response = add_to_cart_response['message']
-                    logging.info(f'Add to cart response: {response}')
+                    logger.success(f'Add to cart response: {response}')
                 except Exception as ex:
-                    logging.error(
+                    logger.error(
                         f'Failed to add item to cart, {type(ex).__name__}: ' + ','.join(ex.args))
 
             checkout_reached = False
             while not checkout_reached:
                 try:
-                    logging.info('Going to checkout page...')
+                    logger.info('Going to checkout page...')
                     driver.get(const.CHECKOUT_URL)
                     checkout_reached = True
                     if notifications['add-to-cart']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('add-to-cart')
                 except (TimeoutException, WebDriverException):
-                    logging.error(
+                    logger.error(
                         'Failed to load checkout page, trying again...')
 
             if payment_method == 'credit-card':
@@ -236,7 +245,7 @@ async def main():
             else:
                 checkout.checkout_paypal(driver, timeout)
 
-            logging.info('Checkout successful!')
+            logger.success('Checkout successfully completed!')
             if notifications['checkout']['enabled']:
                 driver.save_screenshot(const.SCREENSHOT_FILE)
                 notification_queue.put('checkout')
@@ -245,12 +254,12 @@ async def main():
                 checkout.click_recaptcha(driver, timeout)
                 order_submitted = checkout.submit_order(driver, timeout)
                 if order_submitted:
-                    logging.info('Auto buy successfully submitted!')
+                    logger.success('Auto buy successfully submitted!')
                     if notifications['submit']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)
                         notification_queue.put('submit')
                 else:
-                    logging.error(
+                    logger.error(
                         'Failed to auto buy! Please solve the reCAPTCHA and submit manually...')
                     if notifications['captcha-fail']['enabled']:
                         driver.save_screenshot(const.SCREENSHOT_FILE)

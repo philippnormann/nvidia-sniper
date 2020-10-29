@@ -18,6 +18,8 @@ aiohttp = "*"
 beautifulsoup4 = "*"
 asyncio-throttle = "*"
 tqdm = "*"
+coloredlogs = "*"
+verboselogs = "*"
 
 [requires]
 python_version = "3.8"
