@@ -189,8 +189,10 @@ async def main():
                     logger.info('Updating product ID file...')
                     update_sku_file(product_ids)
         except SystemError as ex:
+            error_name = type(ex).__name__
+            error_message = '\n'.join(map(str, ex.args)).rstrip()
             logger.error(
-                f'Internal API error, {type(ex).__name__}: ' + ','.join(ex.args))
+                f'Internal API error - {error_name}: {error_message}')
             if api_up:
                 api_up = False
                 if notifications['api-down']['enabled']:
@@ -224,8 +226,10 @@ async def main():
                     response = add_to_cart_response['message']
                     logger.success(f'Add to cart response: {response}')
                 except Exception as ex:
+                    error_name = type(ex).__name__
+                    error_message = '\n'.join(map(str, ex.args)).rstrip()
                     logger.error(
-                        f'Failed to add item to cart, {type(ex).__name__}: ' + ','.join(ex.args))
+                        f'Failed to add item to cart - {error_name}: {error_message}')
 
             checkout_reached = False
             while not checkout_reached:
