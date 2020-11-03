@@ -15,9 +15,9 @@ from fake_useragent import UserAgent
 src_path = Path(__file__).parent
 data_path = src_path.parent / 'data'
 
-ua = UserAgent()
-headers = {'Connection': 'close',
-           'User-Agent': ua.random}
+fallback_ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
+ua = UserAgent(fallback=fallback_ua)
+headers = {'Connection': 'close', 'User-Agent': ua.random}
 
 
 def read_json(filename):
