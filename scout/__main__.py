@@ -10,9 +10,14 @@ from tqdm import tqdm
 from bs4 import BeautifulSoup
 from asyncio_throttle import Throttler
 from pick import pick
+from fake_useragent import UserAgent
 
 src_path = Path(__file__).parent
 data_path = src_path.parent / 'data'
+
+ua = UserAgent()
+headers = {'Connection': 'close',
+           'User-Agent': ua.random}
 
 
 def read_json(filename):
@@ -53,7 +58,7 @@ async def crawl_skus():
     throttler = Throttler(rate_limit=10)
     pbar = tqdm(total=len(skus) * len(gpus), desc="Crawling SKUs", unit="SKU")
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(headers=headers) as client:
         for promo_locale in skus.keys():
             for gpu_name, gpu_data in gpus.items():
                 tasks.append(retrieve_sku(
@@ -82,14 +87,16 @@ async def check_availability(client, dr_id, dr_locale, currency, throttler, pbar
     async with throttler:
         async with client.get(full_url) as resp:
             pbar.update(1)
-            json_resp = await resp.json()
-            if 'products' in json_resp and len(json_resp['products']['product']) > 0:
-                product_name = json_resp['products']['product'][0]['name']
+            if resp.status == 200:
+                json_resp = await resp.json()
+                if 'products' in json_resp and len(json_resp['products']['product']) > 0:
+                    product_name = json_resp['products']['product'][0]['name']
+                    pbar.write(
+                        f'Found valid SKU in {dr_locale} for {product_name}: {dr_id}')
+                    return dr_locale, dr_id, product_name
+            elif resp.status != 400:
                 pbar.write(
-                    f'Found valid SKU in {dr_locale} for {product_name}: {dr_id}')
-                return dr_locale, dr_id, product_name
-            else:
-                return None
+                    f'Product availability check failed for {dr_id} in {dr_locale} - status code: {resp.status}')
 
 
 async def enumerate_skus(locale, prefix):
@@ -100,7 +107,7 @@ async def enumerate_skus(locale, prefix):
     candidates = set(itertools.product(string.digits, repeat=variable_digits))
     pbar = tqdm(total=len(candidates), desc="Enumerating SKUs", unit="SKU")
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(headers=headers) as client:
         for var_digit_chunk in grouper(1000, candidates):
             tasks = []
             for var_digits in var_digit_chunk:
@@ -132,8 +139,10 @@ async def check_product_status(client, dr_locale, throttler, pbar):
                     locale_status = {}
                     for product in products:
                         if '30' in product['gpu']:
-                            pbar.write(f"Status for {product['gpu']} in {dr_locale}: {product['prdStatus']}")
-                            locale_status[product["gpu"]] = product['prdStatus']
+                            pbar.write(
+                                f"Status for {product['gpu']} in {dr_locale}: {product['prdStatus']}")
+                            locale_status[product["gpu"]
+                                          ] = product['prdStatus']
                     return dr_locale, locale_status
                 else:
                     pbar.write(
@@ -149,9 +158,9 @@ async def check_worldwide_status():
                      for locale in locales.values())
     pbar = tqdm(total=len(dr_locales),
                 desc="Checking worldwide product status", unit="locale")
-    throttler = Throttler(rate_limit=5)
+    throttler = Throttler(rate_limit=10)
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(headers=headers) as client:
         tasks = []
         for dr_locale in dr_locales:
             tasks.append(check_product_status(

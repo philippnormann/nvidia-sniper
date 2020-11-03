@@ -20,6 +20,7 @@ asyncio-throttle = "*"
 tqdm = "*"
 coloredlogs = "*"
 verboselogs = "*"
+fake-useragent = "*"
 
 [requires]
 python_version = "3.8"
