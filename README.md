@@ -181,6 +181,11 @@ There has been a common issue related to shipping speeds not being available whe
 - `true`: (Default) Fallback to using the standard shipping speed when the desired speed isn't available
 - `false`: Stop the bot from continuing with checkout
 
+### `force`
+Toggling this option forces sniper to use the address(es) in customer.json instead of the one suggested by Digital River during the checkout process.
+- `true`: Use address(es) in customer.json
+- `false`: (Default) Use address(es) suggested by Digital River
+
 ### `country`
 The `country` field can have the following values:
 - `AT`: Austria

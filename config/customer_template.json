@@ -10,7 +10,8 @@
         "post-code": "95051",
         "country": "US",
         "email": "jensen@nvidia.com",
-        "phone": "408-486-2000"
+        "phone": "408-486-2000",
+        "force": false
     },
     "shipping": {
         "first-name": "Lisa",
@@ -23,7 +24,8 @@
         "country": "US",
         "phone": "89-4505-3199",
         "speed": "shippingOptionID2",
-        "backup-speed": true
+        "backup-speed": true,
+        "force": false
     },
     "credit": {
         "card": "4111111111111111",
