@@ -63,7 +63,7 @@ def read_config():
         customer = read_json(config_path / 'customer.json')
     except FileNotFoundError:
         logger.critical(
-            'Missing customer configuration file, copy the template to config/customers.json and customize as described in the README to continue.')
+            'Missing customer configuration file, copy the template to config/customer.json and customize as described in the README to continue.')
         sys.exit()
     except json.decoder.JSONDecodeError:
         logger.critical(
