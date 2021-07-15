@@ -2,6 +2,9 @@
 
 This bot helps us buy Nvidia Founders Edition GPUs as soon as they become available.
 
+Note: **This project is no longer being actively maintained.** Nvidia stopped selling Founders Edition cards through their own store and transitioned to exclusively selling via 3rd-party retailers. To buy from those 3rd-party retailers, you can check out other projects like [streetmerchant](https://github.com/jef/streetmerchant) or [fairgame](https://github.com/Hari-Nagarajan/fairgame).
+
+
 ## Features
 
 - Continuously monitor the availability of target GPU on www.nvidia.com
