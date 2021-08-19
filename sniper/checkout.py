@@ -120,7 +120,8 @@ def fill_out_form(driver, timeout, customer):
     driver.find_element(By.ID, 'verEmail').send_keys(
         customer['billing']['email'])
 
-    fill_out_shipping(driver, timeout, customer)
+    if 'shipping' in customer:
+        fill_out_shipping(driver, timeout, customer)
 
     driver.find_element(By.ID, 'ccNum').send_keys(
         customer['credit']['card'])
@@ -136,30 +137,35 @@ def fill_out_form(driver, timeout, customer):
         customer['credit']['code'])
 
 
-def skip_address_check(driver):
-    logging.info('Skipping address check...')
+def skip_address_check(driver, customer):
     try:
-        driver.find_element(By.ID, 'billingAddressOptionRow2').click()
-    except NoSuchElementException:
-        pass
+        if customer['billing']['force']:
+            driver.find_element(By.ID, 'billingAddressOptionRow2').click()
+        else:
+            driver.find_element(By.ID, 'billingAddressOptionRow1').click()
+    except KeyError:
+        driver.find_element(By.ID, 'billingAddressOptionRow1').click()
     try:
-        driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
-    except NoSuchElementException:
-        pass
+        if customer['shipping']['force']:
+            driver.find_element(By.ID, 'shippingAddressOptionRow2').click()
+        else:
+            driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
+    except KeyError:
+        driver.find_element(By.ID, 'shippingAddressOptionRow1').click()
     driver.find_element(By.ID, 'selectionButton').click()
 
 
 def select_shipping_speed(driver, timeout, customer):
     try:
         shipping_speed = customer['shipping']['speed']
-        WebDriverWait(driver, timeout).until(
-            EC.presence_of_element_located((By.ID, shipping_speed)))
+        speed_button = EC.element_to_be_clickable((By.ID, shipping_speed))
+        WebDriverWait(driver, timeout).until(speed_button)
         driver.find_element(By.ID, shipping_speed).click()
     except TimeoutException:
         logging.warning(f'Could not find shipping speed {shipping_speed}')
         if 'backup-speed' in customer['shipping']:
             if customer['shipping']['backup-speed']:
-                logging.info('Continuing with default speed')
+                logging.info('continuing with default speed')
             else:
                 logging.info(
                     'User opted to stop if shipping speed not found.')
@@ -168,6 +174,11 @@ def select_shipping_speed(driver, timeout, customer):
             logging.warning(
                 'data/customer.json missing "backup-speed" option under "shipping", '
                 'continuing with default speed')
+    except KeyError:
+        logging.warning('Could not find shipping param in customer.json')
+        logging.info('continuing with default speed.')
+    except NoSuchElementException:
+        logging.info(f'Error while attempting to interact with element {shipping_speed}. Continuing with default speed')
 
 
 def click_recaptcha(driver, timeout):
@@ -184,15 +195,16 @@ def click_recaptcha(driver, timeout):
 
 
 def submit_order(driver, timeout):
-    try:
-        submit_clickable = EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR))
-        WebDriverWait(driver, timeout).until(submit_clickable)
-        driver.find_element(
-            By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
-        return True
-    except (ElementClickInterceptedException, TimeoutException):
-        return False
+    while  True:
+        try:
+            submit_clickable = EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR))
+            WebDriverWait(driver, timeout).until(submit_clickable)
+            driver.find_element(
+                By.CSS_SELECTOR, const.SUBMIT_BUTTON_SELECTOR).click()
+            return True
+        except (ElementClickInterceptedException, TimeoutException):
+            logging.info('Waiting for the submit button to be activated')
 
 
 def checkout_guest(driver, timeout, customer, auto_submit=False):
@@ -222,11 +234,12 @@ def checkout_guest(driver, timeout, customer, auto_submit=False):
     try:
         error = driver.find_element(By.CLASS_NAME, 'dr_error')
         if len(error.text) > 0:
-            skip_address_check(driver)
+            skip_address_check(driver, customer)
     except NoSuchElementException:
         pass
 
     select_shipping_speed(driver, timeout, customer)
+
 
 
 def checkout_paypal(driver, timeout):
